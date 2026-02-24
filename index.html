@@ -162,6 +162,19 @@
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
+        /* Closed by badge */
+        .closed-by-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+        }
     </style>
 </head>
 <body class="h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -398,7 +411,7 @@
                         </div>
                     </div>
 
-                    <!-- Red Tag Table -->
+                    <!-- Red Tag Table (DIMODIFIKASI: Kolom Aksi menampilkan Closed by) -->
                     <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
                         <div class="p-4 border-b border-white/20 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gradient-to-r from-red-500/10 to-transparent">
                             <h3 class="font-bold uppercase text-sm flex items-center gap-2"><span class="text-2xl">🔴</span> DAFTAR RED TAG</h3>
@@ -415,7 +428,7 @@
                                         <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">ACTION</th>
                                         <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">NO WR</th>
                                         <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">STATUS</th>
-                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-center uppercase font-bold text-[10px] sm:text-xs">AKSI</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-center uppercase font-bold text-[10px] sm:text-xs">AKSI / CLOSED BY</th>
                                     </tr>
                                 </thead>
                                 <tbody id="red-tag-table" class="divide-y divide-white/20 dark:divide-slate-700/50"></tbody>
@@ -732,7 +745,8 @@
                     tag_type: tagData?.tag_type || null,
                     tag_machine: tagData?.machine || null,
                     tag_status: tagData?.status || null,
-                    tag_initial: tagData?.initial || null
+                    tag_initial: tagData?.initial || null,
+                    closed_by: tagData?.closed_by || null // NEW: untuk menyimpan siapa yang close
                 };
                 
                 const { data, error } = await supabaseClient
@@ -789,6 +803,12 @@
         async function updateTag(tagId, updateData) {
             try {
                 const oldTag = allData.find(t => t.id === tagId);
+                
+                // Jika status diubah menjadi CLOSED, tambahkan closed_by dengan currentUser
+                if (updateData.status === 'CLOSED' && oldTag?.status !== 'CLOSED') {
+                    updateData.closed_by = currentUser;
+                    updateData.closed_at = new Date().toISOString();
+                }
                 
                 const { data, error } = await supabaseClient
                     .from('tags')
@@ -1355,12 +1375,12 @@
             // Render charts dan tables
             renderMachineChart(tags);
             renderOperatorChart(tags);
-            renderEngineeringChart(tags); // NEW!
+            renderEngineeringChart(tags);
             renderRedTagTable(tags.filter(t => t.tag_type === 'RED'));
             renderWhiteTagTable(tags.filter(t => t.tag_type === 'WHITE'));
             renderMachineDetailBars(tags);
             renderOperatorDetailBars(tags);
-            renderEngineeringDetailBars(tags); // NEW!
+            renderEngineeringDetailBars(tags);
         }
 
         function renderMachineChart(tags) {
@@ -1687,6 +1707,7 @@
             }).join('');
         }
 
+        // MODIFIED: Render Red Tag Table dengan Closed By
         function renderRedTagTable(redTags) {
             const tbody = document.getElementById('red-tag-table');
             
@@ -1709,7 +1730,13 @@
                 let actionButton = '';
                 
                 if (tag.status === 'CLOSED') {
-                    actionButton = `<span class="text-xs text-emerald-600 font-semibold">✓ CLOSED</span>`;
+                    // Tampilkan siapa yang menutup tag
+                    actionButton = `
+                        <div class="closed-by-badge">
+                            <span>✓</span>
+                            <span>${tag.closed_by || 'Unknown'}</span>
+                        </div>
+                    `;
                 } else if (!tag.wr_number) {
                     if (userRole === 'operator' || userRole === 'admin') {
                         actionButton = `<button onclick="openUpdateModal('${tag.id}')" class="px-2 sm:px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] sm:text-xs font-semibold uppercase hover:bg-blue-600 transition whitespace-nowrap">INPUT WR</button>`;
@@ -2053,6 +2080,12 @@
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
+            
+            // Jika WHITE TAG, langsung set closed_by
+            if (tagType === 'WHITE') {
+                newTag.closed_by = currentUser;
+                newTag.closed_at = new Date().toISOString();
+            }
             
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
