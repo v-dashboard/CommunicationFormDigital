@@ -1,1474 +1,2403 @@
 <!doctype html>
-<html lang="id">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Communication Form NBL ORAL NBL ORAL</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <style>
-    body {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100%;
-      width: 100%;
-    }
-    
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    
-    .app-container {
-      width: 100%;
-      min-height: 100%;
-      background: #f7fafc;
-    }
-    
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      width: 100%;
-    }
-    
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-    
-    .tabs {
-      display: flex;
-      background: white;
-      border-bottom: 2px solid #e2e8f0;
-      padding: 0 24px;
-      width: 100%;
-    }
-    
-    .tab {
-      padding: 16px 24px;
-      cursor: pointer;
-      border: none;
-      background: none;
-      font-size: 16px;
-      font-weight: 500;
-      color: #64748b;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
-    
-    .tab:hover {
-      color: #667eea;
-      background: #f8fafc;
-    }
-    
-    .tab.active {
-      color: #667eea;
-      border-bottom-color: #667eea;
-    }
-    
-    .tab-content {
-      display: none;
-      padding: 24px;
-      width: 100%;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    .filter-section {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
-    }
-    
-    .filter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    
-    .form-group label {
-      font-weight: 500;
-      color: #334155;
-      font-size: 14px;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 10px 12px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-    
-    .stat-card {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-    }
-    
-    .stat-card.total::before {
-      background: linear-gradient(90deg, #667eea, #764ba2);
-    }
-    
-    .stat-card.open::before {
-      background: linear-gradient(90deg, #f59e0b, #ef4444);
-    }
-    
-    .stat-card.closed::before {
-      background: linear-gradient(90deg, #10b981, #059669);
-    }
-    
-    .stat-card.machines::before {
-      background: linear-gradient(90deg, #3b82f6, #2563eb);
-    }
-    
-    .stat-value {
-      font-size: 36px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 8px;
-    }
-    
-    .stat-label {
-      font-size: 14px;
-      color: #64748b;
-      font-weight: 500;
-    }
-    
-    .chart-container {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
-    }
-    
-    .chart-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 16px;
-    }
-    
-    .table-container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-    
-    .table-wrapper {
-      overflow-x: auto;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    thead {
-      background: #f8fafc;
-    }
-    
-    th {
-      padding: 16px;
-      text-align: left;
-      font-weight: 600;
-      color: #475569;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    
-    td {
-      padding: 16px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 14px;
-      color: #334155;
-    }
-    
-    tr:hover {
-      background: #f8fafc;
-    }
-    
-    .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .badge.open {
-      background: #fef3c7;
-      color: #92400e;
-    }
-    
-    .badge.closed {
-      background: #d1fae5;
-      color: #065f46;
-    }
-    
-    .thumbnail {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .thumbnail:hover {
-      transform: scale(1.05);
-    }
-    
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 14px;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-success {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-    
-    .btn-success:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-    
-    .btn-warning {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-    }
-    
-    .btn-warning:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-    }
-    
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #475569;
-    }
-    
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal.active {
-      display: flex;
-    }
-    
-    .modal-content {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90%;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .modal-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #64748b;
-      padding: 0;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-    }
-    
-    .close-btn:hover {
-      background: #f1f5f9;
-    }
-    
-    .timeline {
-      position: relative;
-      padding-left: 40px;
-    }
-    
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 15px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #e2e8f0;
-    }
-    
-    .timeline-item {
-      position: relative;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -33px;
-      top: 24px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #667eea;
-      border: 3px solid white;
-      box-shadow: 0 0 0 2px #667eea;
-    }
-    
-    .timeline-time {
-      font-size: 12px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    
-    .timeline-action {
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 4px;
-    }
-    
-    .timeline-details {
-      font-size: 14px;
-      color: #475569;
-    }
-    
-    .file-upload {
-      border: 2px dashed #cbd5e1;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .file-upload:hover {
-      border-color: #667eea;
-      background: #f8fafc;
-    }
-    
-    .file-upload input {
-      display: none;
-    }
-    
-    .preview-image {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 8px;
-      margin-top: 12px;
-    }
-    
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 24px;
-    }
-    
-    .notification {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      background: white;
-      padding: 16px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: none;
-      align-items: center;
-      gap: 12px;
-      z-index: 2000;
-      animation: slideIn 0.3s ease;
-    }
-    
-    .notification.show {
-      display: flex;
-    }
-    
-    .notification.success {
-      border-left: 4px solid #10b981;
-    }
-    
-    .notification.error {
-      border-left: 4px solid #ef4444;
-    }
-    
-    @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #64748b;
-    }
-    
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #64748b;
-    }
-    
-    .progress-bar {
-      height: 24px;
-      background: #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #059669);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: white;
-      transition: width 0.3s ease;
-    }
-
-    .image-preview-modal .modal-content {
-      max-width: 90%;
-      padding: 0;
-      background: transparent;
-    }
-
-    .image-preview-modal img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-  </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
- </head>
- <body>
-  <div class="app-container">
-   <div class="header">
-    <h1 id="app-title">🏭Communication Form NBL ORAL</h1>
-   </div>
-   <div class="tabs"><button class="tab active" data-tab="dashboard"> 📊 <span id="dashboard-tab">Dashboard</span> </button> <button class="tab" data-tab="input"> 📝 <span id="input-tab">Input Data</span> </button> <button class="tab" data-tab="history"> 📜 <span id="history-tab">History</span> </button>
-   </div><!-- Dashboard Tab -->
-   <div class="tab-content active" id="dashboard">
-    <div class="filter-section">
-     <h3 style="margin: 0 0 16px 0; color: #1e293b;">Filter Data</h3>
-     <div class="filter-grid">
-      <div class="form-group"><label for="filter-mesin">Nama Mesin</label> <select id="filter-mesin"> <option value="">Semua Mesin</option> </select>
-      </div>
-      <div class="form-group"><label for="filter-start">Tanggal Mulai</label> <input type="date" id="filter-start">
-      </div>
-      <div class="form-group"><label for="filter-end">Tanggal Akhir</label> <input type="date" id="filter-end">
-      </div>
-      <div class="form-group"><label for="filter-operator">Operator</label> <select id="filter-operator"> <option value="">Semua Operator</option> </select>
-      </div>
-      <div class="form-group"><label for="filter-status">Status</label> <select id="filter-status"> <option value="">Semua Status</option> <option value="open">Open</option> <option value="closed">Closed</option> </select>
-      </div>
-     </div>
-    </div>
-    <div class="stats-grid">
-     <div class="stat-card total">
-      <div class="stat-value" id="stat-total">
-       0
-      </div>
-      <div class="stat-label">
-       Total Temuan
-      </div>
-     </div>
-     <div class="stat-card open">
-      <div class="stat-value" id="stat-open">
-       0
-      </div>
-      <div class="stat-label">
-       Total Open
-      </div>
-     </div>
-     <div class="stat-card closed">
-      <div class="stat-value" id="stat-closed">
-       0
-      </div>
-      <div class="stat-label">
-       Total Closed
-      </div>
-     </div>
-     <div class="stat-card machines">
-      <div class="stat-value" id="stat-machines">
-       0
-      </div>
-      <div class="stat-label">
-       Total Mesin Terinput
-      </div>
-     </div>
-    </div>
-    <div class="chart-container">
-     <div class="chart-title">
-      Temuan per Mesin
-     </div>
-     <canvas id="chart-mesin"></canvas>
-    </div>
-    <div class="chart-container">
-     <div class="chart-title">
-      Persentase Closed per Mesin
-     </div>
-     <div id="progress-container"></div>
-    </div>
-    <div class="chart-container">
-     <div class="chart-title">
-      Operator vs Temuan
-     </div>
-     <canvas id="chart-operator"></canvas>
-    </div>
-    <div class="table-container">
-     <div class="table-wrapper">
-      <table>
-       <thead>
-        <tr>
-         <th>Status</th>
-         <th>Tanggal Temuan</th>
-         <th>Updated At</th>
-         <th>Nama Mesin</th>
-         <th>Operator</th>
-         <th>Kategori</th>
-         <th>Item Temuan</th>
-         <th>Dampak</th>
-         <th>Saran</th>
-         <th>No WR</th>
-         <th>Action</th>
-         <th>PIC</th>
-         <th>Foto Before</th>
-         <th>Foto After</th>
-         <th>Aksi</th>
-        </tr>
-       </thead>
-       <tbody id="table-body">
-       </tbody>
-      </table>
-     </div>
-    </div>
-   </div><!-- Input Tab -->
-   <div class="tab-content" id="input">
-    <div class="filter-section">
-     <h3 style="margin: 0 0 24px 0; color: #1e293b;">Tambah Temuan Baru</h3>
-     <form id="input-form">
-      <div class="filter-grid">
-       <div class="form-group"><label for="input-mesin">Nama Mesin</label> <select id="input-mesin"> <option value="">Pilih Mesin</option> </select>
-       </div>
-       <div class="form-group"><label for="input-mesin-baru">Atau Tambah Mesin Baru</label> <input type="text" id="input-mesin-baru" placeholder="Nama mesin baru" style="text-transform: uppercase;">
-       </div>
-       <div class="form-group"><label for="input-operator">Operator *</label> <input type="text" id="input-operator" required placeholder="Nama operator" style="text-transform: uppercase;">
-       </div>
-       <div class="form-group"><label for="input-kategori">Kategori *</label> <select id="input-kategori" required> <option value="">Pilih Kategori</option> <option value="Quality">Quality</option> <option value="Productivity">Productivity</option> <option value="Safety">Safety</option> <option value="5R">5R</option> </select>
-       </div>
-      </div>
-      <div class="form-group" style="margin-top: 16px;"><label for="input-item">Item Temuan *</label> <textarea id="input-item" required placeholder="Deskripsi item temuan" style="text-transform: uppercase;"></textarea>
-      </div>
-      <div class="form-group"><label for="input-dampak">Dampak Masalah *</label> <textarea id="input-dampak" required placeholder="Dampak dari masalah ini" style="text-transform: uppercase;"></textarea>
-      </div>
-      <div class="form-group"><label for="input-saran">Saran Action *</label> <textarea id="input-saran" required placeholder="Saran tindakan perbaikan" style="text-transform: uppercase;"></textarea>
-      </div>
-      <div class="form-group"><label>Foto Before *</label>
-       <div class="file-upload" onclick="document.getElementById('input-foto').click()"><input type="file" id="input-foto" accept="image/*" required>
-        <div>
-         📷 Klik untuk upload foto
-        </div><img id="preview-before" class="preview-image" style="display: none;">
-       </div>
-      </div>
-      <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button> <button type="submit" class="btn btn-primary">💾 Simpan Temuan</button>
-      </div>
-     </form>
-    </div>
-   </div><!-- History Tab -->
-   <div class="tab-content" id="history">
-    <div class="filter-section">
-     <h3 style="margin: 0 0 24px 0; color: #1e293b;">Riwayat Aktivitas</h3>
-     <div class="timeline" id="timeline-container">
-     </div>
-    </div>
-   </div>
-  </div><!-- No WR Modal -->
-  <div class="modal" id="nowr-modal">
-   <div class="modal-content">
-    <div class="modal-header">
-     <div class="modal-title">
-      Input No WR
-     </div><button class="close-btn" onclick="closeNoWRModal()">×</button>
-    </div>
-    <form id="nowr-form"><input type="hidden" id="nowr-id">
-     <div class="form-group"><label for="input-nowr">No WR *</label> <input type="text" id="input-nowr" required placeholder="Masukkan nomor WR" style="text-transform: uppercase;">
-     </div>
-     <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeNoWRModal()">Batal</button> <button type="submit" class="btn btn-warning">📝 Simpan No WR</button>
-     </div>
-    </form>
-   </div>
-  </div><!-- Update Modal -->
-  <div class="modal" id="update-modal">
-   <div class="modal-content">
-    <div class="modal-header">
-     <div class="modal-title">
-      Update Temuan
-     </div><button class="close-btn" onclick="closeUpdateModal()">×</button>
-    </div>
-    <form id="update-form"><input type="hidden" id="update-id">
-     <div class="form-group"><label for="update-action">Action yang Dilakukan *</label> <textarea id="update-action" required placeholder="Tindakan yang sudah dilakukan" style="text-transform: uppercase;"></textarea>
-     </div>
-     <div class="form-group"><label>Foto After *</label>
-      <div class="file-upload" onclick="document.getElementById('update-foto').click()"><input type="file" id="update-foto" accept="image/*" required>
-       <div>
-        📷 Klik untuk upload foto
-       </div><img id="preview-after" class="preview-image" style="display: none;">
-      </div>
-     </div>
-     <div class="form-group"><label for="update-pic">Inisial PIC *</label> <input type="text" id="update-pic" required placeholder="Inisial penanggung jawab" style="text-transform: uppercase;">
-     </div>
-     <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="closeUpdateModal()">Batal</button> <button type="submit" class="btn btn-success">✅ Close Temuan</button>
-     </div>
-    </form>
-   </div>
-  </div><!-- Image Preview Modal -->
-  <div class="modal image-preview-modal" id="image-modal">
-   <div class="modal-content"><img id="modal-image" src="">
-   </div>
-  </div><!-- Notification -->
-  <div class="notification" id="notification"><span id="notification-text"></span>
-  </div>
-  <script>
-    const defaultConfig = {
-      app_title: "Communication Form NBL ORAL",
-      dashboard_tab_label: "Dashboard",
-      input_tab_label: "Input Data",
-      history_tab_label: "History"
-    };
-
-    const config = defaultConfig;
-
-    async function onConfigChange(cfg) {
-      document.getElementById('app-title').textContent = cfg.app_title || defaultConfig.app_title;
-      document.getElementById('dashboard-tab').textContent = cfg.dashboard_tab_label || defaultConfig.dashboard_tab_label;
-      document.getElementById('input-tab').textContent = cfg.input_tab_label || defaultConfig.input_tab_label;
-      document.getElementById('history-tab').textContent = cfg.history_tab_label || defaultConfig.history_tab_label;
-    }
-
-    function mapToCapabilities(cfg) {
-      return {
-        recolorables: [],
-        borderables: [],
-        fontEditable: undefined,
-        fontSizeable: undefined
-      };
-    }
-
-    function mapToEditPanelValues(cfg) {
-      return new Map([
-        ["app_title", cfg.app_title || defaultConfig.app_title],
-        ["dashboard_tab_label", cfg.dashboard_tab_label || defaultConfig.dashboard_tab_label],
-        ["input_tab_label", cfg.input_tab_label || defaultConfig.input_tab_label],
-        ["history_tab_label", cfg.history_tab_label || defaultConfig.history_tab_label]
-      ]);
-    }
-
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange,
-        mapToCapabilities,
-        mapToEditPanelValues
-      });
-    }
-
-    // Supabase Configuration
-    const SUPABASE_URL = 'https://wxzuwqwkqezbeoehizck.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4enV3cXdrcWV6YmVvZWhpemNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDA4NTcsImV4cCI6MjA4MTA3Njg1N30.hc69-2zHx5DwgXfzZc5Aji0_jPEHRNlKBC1a46f82zw';
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    let allData = [];
-    let chartMesin = null;
-    let chartOperator = null;
-    
-    // Tab Navigation
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const targetTab = tab.dataset.tab;
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        tab.classList.add('active');
-        document.getElementById(targetTab).classList.add('active');
-        
-        if (targetTab === 'history') {
-          loadHistory();
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TAG MONITORING SYSTEM</title>
+    <!-- Gunakan Tailwind CSS production version -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Space Grotesk', system-ui, sans-serif; }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+        .animate-pulse-slow { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .bar-red { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); }
+        .bar-white { background: linear-gradient(90deg, #94a3b8 0%, #cbd5e1 100%); }
+        .bar-open { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%); }
+        .bar-closed { background: linear-gradient(90deg, #10b981 0%, #34d399 100%); }
+        .bar-engineering { background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%); }
+        .text-wrap { word-wrap: break-word; white-space: normal; }
+        .table-cell-wrap { 
+            white-space: normal !important; 
+            word-break: break-word !important; 
+            overflow-wrap: break-word !important;
+            max-width: 300px;
+            min-width: 100px;
         }
-      });
-    });
-    
-    // Initialize
-    async function init() {
-      await loadData();
-      await loadMachineOptions();
-      setupEventListeners();
-    }
-    
-    async function loadData() {
-      try {
-        const { data, error } = await supabase
-          .from('temuan')
-          .select('*')
-          .order('created_at', { ascending: false });
+        .break-word { 
+            word-break: break-word !important; 
+            overflow-wrap: break-word !important; 
+            hyphens: auto !important;
+            white-space: normal !important;
+        }
+        .toast-message { z-index: 9999; }
+        .chart-item { width: 100%; overflow: visible; }
+        .bar-label { 
+            white-space: normal !important; 
+            word-break: break-word !important; 
+            hyphens: auto !important;
+            line-height: 1.2;
+        }
+        #live-clock {
+            font-family: 'Space Grotesk', monospace;
+            letter-spacing: 1px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        /* Fix untuk tabel */
+        table {
+            table-layout: auto;
+            width: 100%;
+        }
+        td, th {
+            vertical-align: top;
+            padding: 12px 8px;
+        }
+        /* Container untuk teks panjang */
+        .text-container {
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .text-container::-webkit-scrollbar {
+            width: 3px;
+        }
+        .text-container::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+        /* Score Card Styles - EYE CATCHING VERSION */
+        .score-card {
+            position: relative;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            z-index: -1;
+        }
+        .score-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+        .score-card-red {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 6px solid #ef4444;
+        }
+        .score-card-amber {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 6px solid #f59e0b;
+        }
+        .score-card-emerald {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 6px solid #10b981;
+        }
+        .score-card-blue {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 6px solid #3b82f6;
+        }
+        .score-card-purple {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border-left: 6px solid #8b5cf6;
+        }
+        .score-card-dark {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-left: 6px solid #64748b;
+        }
+        .dark .score-card-red {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+        }
+        .dark .score-card-amber {
+            background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+        }
+        .dark .score-card-emerald {
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        }
+        .dark .score-card-blue {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .dark .score-card-purple {
+            background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%);
+        }
+        .dark .score-card-dark {
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
+        }
+        /* Icon floating effect */
+        .card-icon {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 3rem;
+            opacity: 0.2;
+            transform: rotate(10deg);
+            transition: all 0.3s ease;
+        }
+        .score-card:hover .card-icon {
+            transform: rotate(15deg) scale(1.1);
+            opacity: 0.3;
+        }
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* Glass effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div id="app" class="h-full w-full overflow-auto scrollbar-thin">
+        <!-- Login Screen -->
+        <div id="login-screen" class="min-h-full flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-slate-700/50">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg animate-pulse">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                        </div>
+                        <h1 class="text-3xl font-black uppercase tracking-wider bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">TAG MONITORING</h1>
+                        <p class="text-slate-500 dark:text-slate-400 mt-2 uppercase text-sm font-semibold">SISTEM PEMANTAUAN ABNORMALITAS</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold uppercase mb-2 text-slate-600 dark:text-slate-300">INISIAL</label> 
+                            <input type="text" id="login-initial" placeholder="MASUKKAN INISIAL ANDA" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase text-center font-bold tracking-widest" autocomplete="off" onkeypress="handleKeyPress(event, 'login')">
+                        </div>
+                        <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-bold rounded-xl uppercase tracking-wide hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 transition shadow-lg shadow-emerald-500/30">MASUK</button>
+                        <button onclick="handleGuestLogin()" class="w-full py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white font-bold rounded-xl uppercase tracking-wide hover:from-slate-600 hover:to-slate-700 transition shadow-lg shadow-slate-500/30">GUEST</button>
+                        <p id="login-error" class="text-red-500 text-center text-sm uppercase hidden"></p>
+                    </div>
+                    <button onclick="toggleDarkMode()" class="mt-6 w-full py-2 text-slate-500 dark:text-slate-400 text-sm uppercase flex items-center justify-center gap-2 hover:text-slate-700 dark:hover:text-slate-200 transition"> 
+                        <span id="theme-icon">🌙</span> 
+                        <span id="theme-text">MODE GELAP</span> 
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="hidden min-h-full flex flex-col">
+            <!-- Header -->
+            <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/50 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h1 id="app-title" class="font-black uppercase text-base sm:text-lg truncate bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">TAG MONITORING</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 uppercase truncate">USER: <span id="current-user" class="font-bold text-emerald-600 dark:text-emerald-400"></span></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <!-- Live Clock -->
+                    <div id="live-clock" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-mono bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm">
+                        <span id="clock-date" class="text-slate-600 dark:text-slate-400"></span>
+                        <span id="clock-time" class="font-bold text-emerald-600 dark:text-emerald-400 ml-1"></span>
+                    </div>
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 transition backdrop-blur-sm"> 
+                        <span id="header-theme-icon">🌙</span> 
+                    </button> 
+                    <button onclick="handleLogout()" class="px-3 sm:px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white text-xs sm:text-sm font-bold rounded-lg uppercase transition shadow-lg shadow-red-500/30 whitespace-nowrap">KELUAR</button>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/50 px-4 py-2 flex gap-2 overflow-x-auto scrollbar-thin">
+                <button onclick="showPage('dashboard')" data-nav="dashboard" class="nav-btn px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm uppercase whitespace-nowrap transition bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30">📊 DASHBOARD</button> 
+                <button onclick="showPage('input')" data-nav="input" id="nav-input" class="nav-btn px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm uppercase whitespace-nowrap transition bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-600/80 backdrop-blur-sm">➕ INPUT TAG</button> 
+                <button onclick="showPage('management')" data-nav="management" id="nav-management" class="nav-btn px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm uppercase whitespace-nowrap transition bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-600/80 backdrop-blur-sm">⚙️ MANAGEMENT</button> 
+                <button onclick="showPage('audit')" data-nav="audit" class="nav-btn px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm uppercase whitespace-nowrap transition bg-white/50 dark:bg-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-600/80 backdrop-blur-sm">📋 AUDIT TRAIL</button>
+            </nav>
+
+            <!-- Content -->
+            <main class="flex-1 p-4 overflow-auto">
+                <!-- Dashboard Page -->
+                <div id="page-dashboard" class="page space-y-6">
+                    <!-- Filter Section -->
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                        <h3 class="font-bold uppercase text-sm mb-4 flex items-center gap-2">🔍 FILTER DASHBOARD (RENTANG TANGGAL)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">TANGGAL DARI</label>
+                                <input type="date" id="filter-date-from" class="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">TANGGAL SAMPAI</label>
+                                <input type="date" id="filter-date-to" class="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">MESIN</label>
+                                <select id="filter-machine" class="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm uppercase">
+                                    <option value="">SEMUA MESIN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">OPERATOR</label>
+                                <select id="filter-operator" class="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm uppercase">
+                                    <option value="">SEMUA OPERATOR</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">ENGINEERING</label>
+                                <select id="filter-engineering" class="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm uppercase">
+                                    <option value="">SEMUA ENGINEERING</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button onclick="applyDashboardFilter()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg text-sm font-bold uppercase hover:from-emerald-600 hover:to-teal-600 transition shadow-lg shadow-emerald-500/30">TERAPKAN FILTER</button>
+                            <button onclick="resetDashboardFilter()" class="px-4 py-2 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-lg text-sm font-bold uppercase hover:from-slate-600 hover:to-slate-700 transition shadow-lg shadow-slate-500/30">RESET</button>
+                        </div>
+                    </div>
+
+                    <!-- Score Cards - 9 Cards (3x3 Layout) - EYE CATCHING VERSION -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Baris 1: Total Tags, Tag On, Tag Off -->
+                        <div class="score-card score-card-purple">
+                            <div class="card-icon">📊</div>
+                            <p class="score-title text-purple-800 dark:text-purple-200">TOTAL TAGS</p>
+                            <p id="stat-total-tags" class="score-value text-purple-900 dark:text-white">0</p>
+                            <p class="score-label text-purple-700 dark:text-purple-300">RED + WHITE</p>
+                        </div>
+                        
+                        <div class="score-card score-card-red">
+                            <div class="card-icon">🔴</div>
+                            <p class="score-title text-red-800 dark:text-red-200">TAG ON</p>
+                            <p id="stat-tag-on" class="score-value text-red-900 dark:text-white">0</p>
+                            <p class="score-label text-red-700 dark:text-red-300">OPEN + PROGRESS</p>
+                        </div>
+                        
+                        <div class="score-card score-card-emerald">
+                            <div class="card-icon">🟢</div>
+                            <p class="score-title text-emerald-800 dark:text-emerald-200">TAG OFF</p>
+                            <p id="stat-tag-off" class="score-value text-emerald-900 dark:text-white">0</p>
+                            <p class="score-label text-emerald-700 dark:text-emerald-300">WHITE + CLOSED RED</p>
+                        </div>
+
+                        <!-- Baris 2: Open, Progress, Closed (Counts) -->
+                        <div class="score-card score-card-red">
+                            <div class="card-icon">📌</div>
+                            <p class="score-title text-red-800 dark:text-red-200">OPEN</p>
+                            <p id="stat-open" class="score-value text-red-900 dark:text-white">0</p>
+                            <p class="score-label text-red-700 dark:text-red-300">Status OPEN</p>
+                        </div>
+                        
+                        <div class="score-card score-card-amber">
+                            <div class="card-icon">⏳</div>
+                            <p class="score-title text-amber-800 dark:text-amber-200">PROGRESS</p>
+                            <p id="stat-progress" class="score-value text-amber-900 dark:text-white">0</p>
+                            <p class="score-label text-amber-700 dark:text-amber-300">ON PROGRESS</p>
+                        </div>
+                        
+                        <div class="score-card score-card-emerald">
+                            <div class="card-icon">✅</div>
+                            <p class="score-title text-emerald-800 dark:text-emerald-200">CLOSED</p>
+                            <p id="stat-closed" class="score-value text-emerald-900 dark:text-white">0</p>
+                            <p class="score-label text-emerald-700 dark:text-emerald-300">Status CLOSED</p>
+                        </div>
+
+                        <!-- Baris 3: Percentages (based on Tag On) -->
+                        <div class="score-card score-card-red">
+                            <div class="card-icon">📈</div>
+                            <p class="score-title text-red-800 dark:text-red-200">% OPEN</p>
+                            <p id="stat-open-percent" class="score-value text-red-900 dark:text-white">0%</p>
+                            <p class="score-label text-red-700 dark:text-red-300">dari TAG ON</p>
+                        </div>
+                        
+                        <div class="score-card score-card-amber">
+                            <div class="card-icon">📊</div>
+                            <p class="score-title text-amber-800 dark:text-amber-200">% PROGRESS</p>
+                            <p id="stat-progress-percent" class="score-value text-amber-900 dark:text-white">0%</p>
+                            <p class="score-label text-amber-700 dark:text-amber-300">dari TAG ON</p>
+                        </div>
+                        
+                        <div class="score-card score-card-emerald">
+                            <div class="card-icon">🎯</div>
+                            <p class="score-title text-emerald-800 dark:text-emerald-200">% CLOSED</p>
+                            <p id="stat-closed-percent" class="score-value text-emerald-900 dark:text-white">0%</p>
+                            <p class="score-label text-emerald-700 dark:text-emerald-300">dari TAG ON</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row - 3 Kolom (Operator, Engineering, Mesin) -->
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <!-- Tag by Operator -->
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                            <h3 class="font-bold uppercase text-sm mb-4 flex items-center gap-2"><span class="text-2xl">👷</span> TAG PER OPERATOR</h3>
+                            <div class="space-y-4 max-h-96 overflow-auto scrollbar-thin pr-2">
+                                <div id="chart-operator" class="space-y-2"></div>
+                                <div class="mt-4 pt-4 border-t border-white/20 dark:border-slate-700/50">
+                                    <h4 class="font-semibold uppercase text-xs mb-3 text-slate-500 dark:text-slate-400 break-word">RED VS WHITE PER OPERATOR</h4>
+                                    <div id="operator-detail-bars" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Closed Tag by Engineering (NEW!) -->
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                            <h3 class="font-bold uppercase text-sm mb-4 flex items-center gap-2"><span class="text-2xl">🏆</span> CLOSED TAG PER ENGINEERING</h3>
+                            <div class="space-y-4 max-h-96 overflow-auto scrollbar-thin pr-2">
+                                <div id="chart-engineering" class="space-y-2"></div>
+                                <div class="mt-4 pt-4 border-t border-white/20 dark:border-slate-700/50">
+                                    <h4 class="font-semibold uppercase text-xs mb-3 text-slate-500 dark:text-slate-400 break-word">DETAIL CLOSED TAG</h4>
+                                    <div id="engineering-detail-bars" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tag by Machine -->
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                            <h3 class="font-bold uppercase text-sm mb-4 flex items-center gap-2"><span class="text-2xl">📊</span> TAG PER MESIN</h3>
+                            <div class="space-y-4 max-h-96 overflow-auto scrollbar-thin pr-2">
+                                <div id="chart-machine" class="space-y-2"></div>
+                                <div class="mt-4 pt-4 border-t border-white/20 dark:border-slate-700/50">
+                                    <h4 class="font-semibold uppercase text-xs mb-3 text-slate-500 dark:text-slate-400 break-word">DETAIL PER MESIN</h4>
+                                    <div id="machine-detail-bars" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Red vs White Chart -->
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                        <h3 class="font-bold uppercase text-sm mb-4 flex items-center gap-2"><span class="text-2xl">🏷️</span> PERBANDINGAN RED TAG VS WHITE TAG</h3>
+                        <div class="flex flex-col sm:flex-row items-end gap-4 sm:gap-8 justify-center h-48">
+                            <div class="flex flex-col items-center w-full sm:w-auto">
+                                <div id="bar-red" class="w-full sm:w-24 bg-gradient-to-t from-red-600 via-red-500 to-red-400 rounded-t-lg shadow-lg transition-all duration-500" style="height: 0px"></div>
+                                <p class="mt-2 font-bold uppercase text-sm">RED TAG</p>
+                                <p id="count-red" class="text-2xl font-black text-red-500">0</p>
+                            </div>
+                            <div class="flex flex-col items-center w-full sm:w-auto">
+                                <div id="bar-white" class="w-full sm:w-24 bg-gradient-to-t from-slate-400 via-slate-300 to-slate-200 rounded-t-lg shadow-lg transition-all duration-500" style="height: 0px"></div>
+                                <p class="mt-2 font-bold uppercase text-sm">WHITE TAG</p>
+                                <p id="count-white" class="text-2xl font-black text-slate-500">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Red Tag Table -->
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                        <div class="p-4 border-b border-white/20 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gradient-to-r from-red-500/10 to-transparent">
+                            <h3 class="font-bold uppercase text-sm flex items-center gap-2"><span class="text-2xl">🔴</span> DAFTAR RED TAG</h3>
+                            <span id="red-tag-count" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded-full font-bold shadow-lg shadow-red-500/30 whitespace-nowrap">0 TAG</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50/50 dark:bg-slate-700/50">
+                                    <tr>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">TANGGAL</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">MESIN</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">RESIKO</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">ABNORMALITAS</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">ACTION</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">NO WR</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">STATUS</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-center uppercase font-bold text-[10px] sm:text-xs">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="red-tag-table" class="divide-y divide-white/20 dark:divide-slate-700/50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- White Tag Table -->
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                        <div class="p-4 border-b border-white/20 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gradient-to-r from-slate-500/10 to-transparent">
+                            <h3 class="font-bold uppercase text-sm flex items-center gap-2"><span class="text-2xl">⚪</span> DAFTAR WHITE TAG</h3>
+                            <span id="white-tag-count" class="text-xs bg-slate-500 text-white px-3 py-1.5 rounded-full font-bold shadow-lg shadow-slate-500/30 whitespace-nowrap">0 TAG</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50/50 dark:bg-slate-700/50">
+                                    <tr>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">TANGGAL</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">OPERATOR</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">MESIN</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">ABNORMALITAS</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">ACTION</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">RESIKO</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="white-tag-table" class="divide-y divide-white/20 dark:divide-slate-700/50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Tag Page -->
+                <div id="page-input" class="page hidden">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                            <h2 class="font-black uppercase text-lg sm:text-xl mb-6 flex items-center gap-2"><span class="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-lg">➕</span> INPUT TAG BARU</h2>
+                            <form id="tag-form" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-bold uppercase mb-2">TANGGAL</label> 
+                                        <input type="date" id="input-date" required class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold uppercase mb-2">JENIS TAG</label> 
+                                        <select id="input-tag-type" required onchange="handleTagTypeChange()" class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase text-sm"> 
+                                            <option value="">PILIH</option> 
+                                            <option value="RED">🔴 RED</option> 
+                                            <option value="WHITE">⚪ WHITE</option> 
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold uppercase mb-2">MESIN</label> 
+                                        <select id="input-machine" required class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase text-sm"> 
+                                            <option value="">PILIH</option> 
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold uppercase mb-2">RESIKO</label> 
+                                        <select id="input-risk" required class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase text-sm"> 
+                                            <option value="">PILIH</option> 
+                                            <option value="QUALITY">🎯 QUALITY</option> 
+                                            <option value="PRODUCTIVITY">⚡ PRODUCTIVITY</option> 
+                                            <option value="SAFETY">🛡️ SAFETY</option> 
+                                            <option value="5R">🧹 5R</option> 
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-bold uppercase mb-2">ABNORMALITAS</label> 
+                                    <textarea id="input-abnormality" required rows="3" placeholder="DESKRIPSIKAN ABNORMALITAS..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase break-word"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-bold uppercase mb-2">DAMPAK JIKA TIDAK DITANGGULANGI</label> 
+                                    <textarea id="input-impact" required rows="3" placeholder="JELASKAN DAMPAKNYA..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase break-word"></textarea>
+                                </div>
+                                
+                                <div id="white-tag-action" class="hidden">
+                                    <label class="block text-sm font-bold uppercase mb-2">ACTION (TINDAKAN PERBAIKAN)</label> 
+                                    <textarea id="input-action" rows="3" placeholder="JELASKAN TINDAKAN PERBAIKAN..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase break-word"></textarea>
+                                </div>
+                                
+                                <button type="submit" id="submit-btn" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-black rounded-xl uppercase tracking-wide hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 transition shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"> 
+                                    <span>SUBMIT TAG</span> 
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Management Page -->
+                <div id="page-management" class="page hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                            <div class="p-4 border-b border-white/20 dark:border-slate-700/50 bg-gradient-to-r from-blue-500 to-indigo-500">
+                                <h3 class="font-bold uppercase text-white flex items-center gap-2 break-word">👷 OPERATOR</h3>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                                    <input type="text" id="new-operator" placeholder="INISIAL OPERATOR" class="flex-1 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 focus:outline-none transition uppercase text-sm" maxlength="10" onkeypress="handleKeyPress(event, 'addOperator')"> 
+                                    <button onclick="addOperator()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg font-bold uppercase text-sm hover:from-blue-600 hover:to-indigo-600 transition shadow-lg shadow-blue-500/30 whitespace-nowrap">ADD</button>
+                                </div>
+                                <div id="operator-list" class="space-y-2 max-h-64 overflow-auto scrollbar-thin"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                            <div class="p-4 border-b border-white/20 dark:border-slate-700/50 bg-gradient-to-r from-purple-500 to-pink-500">
+                                <h3 class="font-bold uppercase text-white flex items-center gap-2 break-word">🔧 ENGINEERING</h3>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                                    <input type="text" id="new-engineering" placeholder="INISIAL ENGINEERING" class="flex-1 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 focus:outline-none transition uppercase text-sm" maxlength="10" onkeypress="handleKeyPress(event, 'addEngineering')"> 
+                                    <button onclick="addEngineering()" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-bold uppercase text-sm hover:from-purple-600 hover:to-pink-600 transition shadow-lg shadow-purple-500/30 whitespace-nowrap">ADD</button>
+                                </div>
+                                <div id="engineering-list" class="space-y-2 max-h-64 overflow-auto scrollbar-thin"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                            <div class="p-4 border-b border-white/20 dark:border-slate-700/50 bg-gradient-to-r from-emerald-500 to-teal-500">
+                                <h3 class="font-bold uppercase text-white flex items-center gap-2 break-word">🏭 MESIN</h3>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                                    <input type="text" id="new-machine" placeholder="NAMA MESIN" class="flex-1 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition uppercase text-sm" maxlength="20" onkeypress="handleKeyPress(event, 'addMachine')"> 
+                                    <button onclick="addMachine()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-bold uppercase text-sm hover:from-emerald-600 hover:to-teal-600 transition shadow-lg shadow-emerald-500/30 whitespace-nowrap">ADD</button>
+                                </div>
+                                <div id="machine-list" class="space-y-2 max-h-64 overflow-auto scrollbar-thin"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Trail Page -->
+                <div id="page-audit" class="page hidden">
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/20 dark:border-slate-700/50 shadow-xl">
+                        <div class="p-4 border-b border-white/20 dark:border-slate-700/50">
+                            <h3 class="font-black uppercase text-base sm:text-lg mb-4 flex items-center gap-2"><span class="text-2xl">📋</span> AUDIT TRAIL & HISTORY</h3>
+                            <div class="flex flex-wrap gap-4 items-end">
+                                <div class="w-full sm:w-auto">
+                                    <label class="block text-sm font-bold uppercase mb-2">DARI TANGGAL</label> 
+                                    <input type="date" id="audit-from" class="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition">
+                                </div>
+                                <div class="w-full sm:w-auto">
+                                    <label class="block text-sm font-bold uppercase mb-2">SAMPAI TANGGAL</label> 
+                                    <input type="date" id="audit-to" class="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 focus:outline-none transition">
+                                </div>
+                                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                                    <button onclick="filterAudit()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-bold uppercase text-sm hover:from-emerald-600 hover:to-teal-600 transition shadow-lg shadow-emerald-500/30">🔍 FILTER</button> 
+                                    <button onclick="exportExcel()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold uppercase text-sm hover:from-green-600 hover:to-emerald-600 transition shadow-lg shadow-green-500/30">📥 EXCEL</button> 
+                                    <button onclick="exportPDF()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg font-bold uppercase text-sm hover:from-red-600 hover:to-rose-600 transition shadow-lg shadow-red-500/30">📄 PDF</button>
+                                    <button onclick="resetFilter()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-lg font-bold uppercase text-sm hover:from-slate-600 hover:to-slate-700 transition shadow-lg shadow-slate-500/30">⟲ RESET</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50/50 dark:bg-slate-700/50">
+                                    <tr>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">WAKTU</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">USER</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">AKTIVITAS</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">DETAIL</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">TANGGAL TAG</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">JENIS</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">MESIN</th>
+                                        <th class="px-2 sm:px-4 py-2 sm:py-3 text-left uppercase font-bold text-[10px] sm:text-xs">STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table" class="divide-y divide-white/20 dark:divide-slate-700/50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Update Modal -->
+        <div id="update-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" onclick="if(event.target === this) closeModal()">
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto border border-white/20 dark:border-slate-700/50">
+                <h3 class="font-bold uppercase text-lg mb-4 flex items-center gap-2 break-word">
+                    <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center text-white flex-shrink-0">✏️</span>
+                    UPDATE RED TAG
+                </h3>
+                <div id="modal-content"></div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" onclick="if(event.target === this) closeEditModal()">
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-white/20 dark:border-slate-700/50">
+                <h3 class="font-bold uppercase text-lg mb-4 flex items-center gap-2 break-word">
+                    <span class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-lg flex items-center justify-center text-white flex-shrink-0">✏️</span>
+                    <span id="edit-modal-title">EDIT</span>
+                </h3>
+                <div id="edit-modal-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ SUPABASE CONFIG ============
+        const SUPABASE_URL = 'https://hzvjoewuprlkgwetqpau.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6dmpvZXd1cHJsa2d3ZXRxcGF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MTAxNzQsImV4cCI6MjA4NzM4NjE3NH0.i0SgR9fmdb_gDNEDh2lt4Q9cgLEVGX6EDzB_jJQPa8w';
         
-        if (error) throw error;
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============ STATE ============
+        let allData = [];
+        let filteredData = [];
+        let currentUser = null;
+        let userRole = null;
+        let darkMode = false;
+        let operators = [];
+        let engineerings = [];
+        let machines = [];
+        let filteredAuditData = [];
+        let auditLogs = [];
         
-        allData = data || [];
-        updateDashboard();
-      } catch (error) {
-        console.error('Error loading data:', error);
-        showNotification('Gagal memuat data', 'error');
-      }
-    }
-    
-    async function loadMachineOptions() {
-      const machines = [...new Set(allData.map(d => d.nama_mesin))].sort();
-      const selectElements = [
-        document.getElementById('filter-mesin'),
-        document.getElementById('input-mesin')
-      ];
-      
-      selectElements.forEach(select => {
-        const currentValue = select.value;
-        const firstOption = select.id === 'filter-mesin' ? 
-          '<option value="">Semua Mesin</option>' : 
-          '<option value="">Pilih Mesin</option>';
-        select.innerHTML = firstOption;
-        machines.forEach(machine => {
-          const option = document.createElement('option');
-          option.value = machine;
-          option.textContent = machine;
-          select.appendChild(option);
-        });
-        select.value = currentValue;
-      });
-    }
-    
-    function setupEventListeners() {
-      // Filters
-      ['filter-mesin', 'filter-start', 'filter-end', 'filter-operator', 'filter-status'].forEach(id => {
-        document.getElementById(id).addEventListener('change', updateDashboard);
-      });
-      
-      // File uploads
-      document.getElementById('input-foto').addEventListener('change', function(e) {
-        handleFileUpload(e, 'preview-before');
-      });
-      
-      document.getElementById('update-foto').addEventListener('change', function(e) {
-        handleFileUpload(e, 'preview-after');
-      });
-      
-      // Forms
-      document.getElementById('input-form').addEventListener('submit', handleSubmitTemuan);
-      document.getElementById('nowr-form').addEventListener('submit', handleSubmitNoWR);
-      document.getElementById('update-form').addEventListener('submit', handleUpdateTemuan);
-      
-      // Machine input logic
-      document.getElementById('input-mesin').addEventListener('change', function() {
-        if (this.value) {
-          document.getElementById('input-mesin-baru').disabled = true;
-          document.getElementById('input-mesin-baru').value = '';
-        } else {
-          document.getElementById('input-mesin-baru').disabled = false;
-        }
-      });
-      
-      document.getElementById('input-mesin-baru').addEventListener('input', function() {
-        if (this.value.trim()) {
-          document.getElementById('input-mesin').disabled = true;
-        } else {
-          document.getElementById('input-mesin').disabled = false;
-        }
-      });
-      
-      // Image modal close
-      document.getElementById('image-modal').addEventListener('click', function(e) {
-        if (e.target === this) {
-          this.classList.remove('active');
-        }
-      });
-    }
-    
-    function updateDashboard() {
-      const filtered = getFilteredData();
-      
-      // Update stats
-      document.getElementById('stat-total').textContent = filtered.length;
-      document.getElementById('stat-open').textContent = filtered.filter(d => d.status === 'open').length;
-      document.getElementById('stat-closed').textContent = filtered.filter(d => d.status === 'closed').length;
-      document.getElementById('stat-machines').textContent = new Set(filtered.map(d => d.nama_mesin)).size;
-      
-      // Update operator filter
-      const operators = [...new Set(allData.map(d => d.operator))].sort();
-      const operatorSelect = document.getElementById('filter-operator');
-      const currentOperator = operatorSelect.value;
-      operatorSelect.innerHTML = '<option value="">Semua Operator</option>';
-      operators.forEach(op => {
-        const option = document.createElement('option');
-        option.value = op;
-        option.textContent = op;
-        operatorSelect.appendChild(option);
-      });
-      operatorSelect.value = currentOperator;
-      
-      // Update charts
-      updateCharts(filtered);
-      
-      // Update table
-      updateTable(filtered);
-    }
-    
-    function getFilteredData() {
-      let filtered = [...allData];
-      
-      const mesin = document.getElementById('filter-mesin').value;
-      const start = document.getElementById('filter-start').value;
-      const end = document.getElementById('filter-end').value;
-      const operator = document.getElementById('filter-operator').value;
-      const status = document.getElementById('filter-status').value;
-      
-      if (mesin) {
-        filtered = filtered.filter(d => d.nama_mesin === mesin);
-      }
-      if (start) {
-        filtered = filtered.filter(d => d.tanggal_temuan >= start);
-      }
-      if (end) {
-        filtered = filtered.filter(d => d.tanggal_temuan <= end);
-      }
-      if (operator) {
-        filtered = filtered.filter(d => d.operator === operator);
-      }
-      if (status) {
-        filtered = filtered.filter(d => d.status === status);
-      }
-      
-      return filtered;
-    }
-    
-    function updateCharts(data) {
-      // Chart: Temuan per Mesin
-      const mesinData = {};
-      data.forEach(d => {
-        mesinData[d.nama_mesin] = (mesinData[d.nama_mesin] || 0) + 1;
-      });
-      
-      const mesinLabels = Object.keys(mesinData);
-      const mesinValues = Object.values(mesinData);
-      
-      if (chartMesin) {
-        chartMesin.destroy();
-      }
-      
-      const ctxMesin = document.getElementById('chart-mesin').getContext('2d');
-      chartMesin = new Chart(ctxMesin, {
-        type: 'bar',
-        data: {
-          labels: mesinLabels,
-          datasets: [{
-            label: 'Jumlah Temuan',
-            data: mesinValues,
-            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
-              }
-            }
-          }
-        }
-      });
-      
-      // Progress bars: Closed per Mesin
-      const progressContainer = document.getElementById('progress-container');
-      progressContainer.innerHTML = '';
-      
-      mesinLabels.forEach(mesin => {
-        const total = data.filter(d => d.nama_mesin === mesin).length;
-        const closed = data.filter(d => d.nama_mesin === mesin && d.status === 'closed').length;
-        const percentage = total > 0 ? Math.round((closed / total) * 100) : 0;
-        
-        const progressItem = document.createElement('div');
-        progressItem.style.marginBottom = '16px';
-        progressItem.innerHTML = `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-weight: 600; color: #334155;">${mesin}</span>
-            <span style="color: #64748b;">${closed}/${total}</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${percentage}%">${percentage}%</div>
-          </div>
-        `;
-        progressContainer.appendChild(progressItem);
-      });
-      
-      // Chart: Operator vs Temuan
-      const operatorData = {};
-      data.forEach(d => {
-        operatorData[d.operator] = (operatorData[d.operator] || 0) + 1;
-      });
-      
-      const operatorLabels = Object.keys(operatorData);
-      const operatorValues = Object.values(operatorData);
-      
-      if (chartOperator) {
-        chartOperator.destroy();
-      }
-      
-      const ctxOperator = document.getElementById('chart-operator').getContext('2d');
-      chartOperator = new Chart(ctxOperator, {
-        type: 'bar',
-        data: {
-          labels: operatorLabels,
-          datasets: [{
-            label: 'Jumlah Temuan',
-            data: operatorValues,
-            backgroundColor: 'rgba(118, 75, 162, 0.8)',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
-              }
-            }
-          }
-        }
-      });
-    }
-    
-    function updateTable(data) {
-      const tbody = document.getElementById('table-body');
-      
-      if (data.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="15">
-              <div class="empty-state">
-                <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
-                <div style="font-size: 16px; font-weight: 600;">Tidak ada data</div>
-                <div style="font-size: 14px; margin-top: 8px;">Belum ada temuan yang tercatat</div>
-              </div>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      tbody.innerHTML = data.map(row => {
-        const updatedAt = row.updated_at ? new Date(row.updated_at).toLocaleString('id-ID') : '-';
-        const tanggal = new Date(row.tanggal_temuan).toLocaleDateString('id-ID');
-        
-        let actionButtons = '-';
-        if (row.status === 'open') {
-          if (!row.no_wr) {
-            actionButtons = `
-              <div class="action-buttons">
-                <button class="btn btn-warning" onclick="openNoWRModal('${row.id}')">📝 Input No WR</button>
-              </div>
-            `;
-          } else {
-            actionButtons = `
-              <div class="action-buttons">
-                <button class="btn btn-success" onclick="openUpdateModal('${row.id}')">✅ Update</button>
-              </div>
-            `;
-          }
-        }
-        
-        return `
-          <tr>
-            <td><span class="badge ${row.status}">${row.status.toUpperCase()}</span></td>
-            <td>${tanggal}</td>
-            <td>${updatedAt}</td>
-            <td>${row.nama_mesin}</td>
-            <td>${row.operator}</td>
-            <td>${row.kategori_temuan}</td>
-            <td>${row.item_temuan}</td>
-            <td>${row.dampak_masalah}</td>
-            <td>${row.saran_action}</td>
-            <td>${row.no_wr || '-'}</td>
-            <td>${row.action || '-'}</td>
-            <td>${row.inisial_pic || '-'}</td>
-            <td>${row.foto_before ? `<img src="${row.foto_before}" class="thumbnail" onclick="showImage('${row.foto_before}')">` : '-'}</td>
-            <td>${row.foto_after ? `<img src="${row.foto_after}" class="thumbnail" onclick="showImage('${row.foto_after}')">` : '-'}</td>
-            <td>${actionButtons}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-    
-    function handleFileUpload(event, previewId) {
-      const file = event.target.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxSize = 800;
-          
-          if (width > height && width > maxSize) {
-            height = (height * maxSize) / width;
-            width = maxSize;
-          } else if (height > maxSize) {
-            width = (width * maxSize) / height;
-            height = maxSize;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressed = canvas.toDataURL('image/jpeg', 0.7);
-          document.getElementById(previewId).src = compressed;
-          document.getElementById(previewId).style.display = 'block';
+        let currentFilter = {
+            dateFrom: '',
+            dateTo: '',
+            machine: '',
+            operator: '',
+            engineering: ''
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    async function handleSubmitTemuan(e) {
-      e.preventDefault();
-      
-      const mesinSelect = document.getElementById('input-mesin').value;
-      const mesinBaru = document.getElementById('input-mesin-baru').value.trim().toUpperCase();
-      const namaMesin = mesinBaru || mesinSelect;
-      
-      if (!namaMesin) {
-        showNotification('Pilih mesin atau masukkan nama mesin baru', 'error');
-        return;
-      }
-      
-      // Check for duplicate machine name
-      if (mesinBaru) {
-        const existingMachines = [...new Set(allData.map(d => d.nama_mesin.toUpperCase()))];
-        if (existingMachines.includes(mesinBaru)) {
-          showNotification('Nama mesin sudah ada! Pilih dari dropdown atau gunakan nama lain', 'error');
-          return;
+        
+        const defaultConfig = {
+            app_title: 'TAG MONITORING'
+        };
+
+        // ============ LIVE CLOCK FUNCTION ============
+        function updateLiveClock() {
+            const now = new Date();
+            
+            // Format tanggal: DD/MM/YYYY
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const dateStr = `${day}/${month}/${year}`;
+            
+            // Format waktu: HH:MM:SS
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            
+            const dateElement = document.getElementById('clock-date');
+            const timeElement = document.getElementById('clock-time');
+            
+            if (dateElement && timeElement) {
+                dateElement.textContent = dateStr;
+                timeElement.textContent = timeStr;
+            }
         }
-      }
-      
-      const operator = document.getElementById('input-operator').value.toUpperCase();
-      const kategori = document.getElementById('input-kategori').value;
-      const item = document.getElementById('input-item').value;
-      const dampak = document.getElementById('input-dampak').value;
-      const saran = document.getElementById('input-saran').value;
-      const fotoBefore = document.getElementById('preview-before').src;
-      
-      if (!fotoBefore || fotoBefore === window.location.href) {
-        showNotification('Foto before harus diupload', 'error');
-        return;
-      }
-      
-      const id = 'TMN-' + Date.now();
-      const tanggal = new Date().toISOString().split('T')[0];
-      
-      try {
-        const { error: temuanError } = await supabase
-          .from('temuan')
-          .insert([{
-            id,
-            tanggal_temuan: tanggal,
-            nama_mesin: namaMesin,
-            operator,
-            kategori_temuan: kategori,
-            item_temuan: item,
-            dampak_masalah: dampak,
-            foto_before: fotoBefore,
-            saran_action: saran,
-            status: 'open',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
-        
-        if (temuanError) throw temuanError;
-        
-        const { error: historyError } = await supabase
-          .from('history')
-          .insert([{
-            timestamp: new Date().toISOString(),
-            action: 'Temuan Baru',
-            details: `Temuan "${item}" ditambahkan pada mesin ${namaMesin} oleh ${operator}`
-          }]);
-        
-        if (historyError) throw historyError;
-        
-        showNotification('Temuan berhasil disimpan', 'success');
-        resetForm();
-        await loadData();
-        await loadMachineOptions();
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelector('[data-tab="dashboard"]').classList.add('active');
-        document.getElementById('dashboard').classList.add('active');
-      } catch (error) {
-        console.error('Error saving:', error);
-        showNotification('Gagal menyimpan temuan', 'error');
-      }
-    }
-    
-    function resetForm() {
-      document.getElementById('input-form').reset();
-      document.getElementById('preview-before').style.display = 'none';
-      document.getElementById('input-mesin-baru').value = '';
-      document.getElementById('input-mesin').disabled = false;
-      document.getElementById('input-mesin-baru').disabled = false;
-    }
-    
-    function openNoWRModal(id) {
-      document.getElementById('nowr-id').value = id;
-      document.getElementById('nowr-modal').classList.add('active');
-      document.getElementById('nowr-form').reset();
-    }
-    
-    function closeNoWRModal() {
-      document.getElementById('nowr-modal').classList.remove('active');
-    }
-    
-    async function handleSubmitNoWR(e) {
-      e.preventDefault();
-      
-      const id = document.getElementById('nowr-id').value;
-      const noWR = document.getElementById('input-nowr').value.toUpperCase();
-      
-      if (!noWR.trim()) {
-        showNotification('No WR tidak boleh kosong', 'error');
-        return;
-      }
-      
-      try {
-        const temuan = allData.find(d => d.id === id);
-        
-        if (!temuan) {
-          showNotification('Data temuan tidak ditemukan', 'error');
-          return;
+
+        // ============ AUTO UPDATE FUNCTION ============
+        async function refreshData() {
+            try {
+                // Fetch semua data terbaru
+                const [tagsResult, opsResult, engsResult, machsResult, auditsResult] = await Promise.all([
+                    supabaseClient.from('tags').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('operators').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('engineerings').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('machines').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('audit_logs').select('*').order('created_at', { ascending: false })
+                ]);
+
+                if (tagsResult.error) throw tagsResult.error;
+                if (opsResult.error) throw opsResult.error;
+                if (engsResult.error) throw engsResult.error;
+                if (machsResult.error) throw machsResult.error;
+                if (auditsResult.error) throw auditsResult.error;
+
+                // Update state
+                allData = tagsResult.data || [];
+                operators = (opsResult.data || []).map(o => o.initial).sort((a, b) => a.localeCompare(b));
+                engineerings = (engsResult.data || []).map(e => e.initial).sort((a, b) => a.localeCompare(b));
+                machines = (machsResult.data || []).map(m => m.machine).sort((a, b) => a.localeCompare(b));
+                auditLogs = auditsResult.data || [];
+
+                // Update UI
+                renderManagementLists();
+                updateMachineDropdown();
+                updateFilterDropdowns();
+                
+                // Auto update dashboard jika sedang di halaman dashboard
+                if (!document.getElementById('page-dashboard').classList.contains('hidden')) {
+                    applyDashboardFilter();
+                }
+                
+                // Auto update audit jika sedang di halaman audit
+                if (!document.getElementById('page-audit').classList.contains('hidden')) {
+                    renderAuditTable();
+                }
+
+                console.log('Data refreshed automatically at', new Date().toLocaleTimeString());
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
         }
-        
-        const { data, error: updateError } = await supabase
-          .from('temuan')
-          .update({
-            no_wr: noWR,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id)
-          .select();
-        
-        if (updateError) {
-          console.error('Update error:', updateError);
-          throw updateError;
+
+        // ============ AUDIT LOG FUNCTION ============
+        async function addAuditLog(activity, detail, tagData = null) {
+            try {
+                const log = {
+                    created_at: new Date().toISOString(),
+                    user: currentUser || 'GUEST',
+                    role: userRole || 'guest',
+                    activity: activity,
+                    detail: detail,
+                    tag_id: tagData?.id || null,
+                    tag_date: tagData?.date || null,
+                    tag_type: tagData?.tag_type || null,
+                    tag_machine: tagData?.machine || null,
+                    tag_status: tagData?.status || null,
+                    tag_initial: tagData?.initial || null
+                };
+                
+                const { data, error } = await supabaseClient
+                    .from('audit_logs')
+                    .insert([log])
+                    .select();
+
+                if (error) throw error;
+                
+                auditLogs.unshift(data[0]);
+                
+                // Auto refresh setelah audit log ditambahkan
+                setTimeout(refreshData, 100);
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error adding audit log:', error);
+            }
         }
-        
-        const { error: historyError } = await supabase
-          .from('history')
-          .insert([{
-            timestamp: new Date().toISOString(),
-            action: 'Input No WR',
-            details: `No WR "${noWR}" ditambahkan untuk temuan "${temuan.item_temuan}" di mesin ${temuan.nama_mesin}`
-          }]);
-        
-        if (historyError) {
-          console.error('History error:', historyError);
+
+        // ============ SUPABASE FUNCTIONS ============
+        async function fetchAllData() {
+            await refreshData();
         }
-        
-        showNotification('No WR berhasil disimpan', 'success');
-        closeNoWRModal();
-        await loadData();
-      } catch (error) {
-        console.error('Error saving No WR:', error);
-        showNotification('Gagal menyimpan No WR: ' + error.message, 'error');
-      }
-    }
-    
-    function openUpdateModal(id) {
-      const temuan = allData.find(d => d.id === id);
-      
-      if (!temuan.no_wr) {
-        showNotification('Harap isi No WR terlebih dahulu', 'error');
-        return;
-      }
-      
-      document.getElementById('update-id').value = id;
-      document.getElementById('update-modal').classList.add('active');
-      document.getElementById('update-form').reset();
-      document.getElementById('preview-after').style.display = 'none';
-    }
-    
-    function closeUpdateModal() {
-      document.getElementById('update-modal').classList.remove('active');
-    }
-    
-    async function handleUpdateTemuan(e) {
-      e.preventDefault();
-      
-      const id = document.getElementById('update-id').value;
-      const action = document.getElementById('update-action').value;
-      const pic = document.getElementById('update-pic').value.toUpperCase();
-      const fotoAfter = document.getElementById('preview-after').src;
-      
-      if (!fotoAfter || fotoAfter === window.location.href) {
-        showNotification('Foto after harus diupload', 'error');
-        return;
-      }
-      
-      try {
-        const temuan = allData.find(d => d.id === id);
-        
-        const { error: updateError } = await supabase
-          .from('temuan')
-          .update({
-            action,
-            foto_after: fotoAfter,
-            inisial_pic: pic,
-            status: 'closed',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id);
-        
-        if (updateError) throw updateError;
-        
-        const { error: historyError } = await supabase
-          .from('history')
-          .insert([{
-            timestamp: new Date().toISOString(),
-            action: 'Update Status',
-            details: `Temuan "${temuan.item_temuan}" di mesin ${temuan.nama_mesin} telah closed oleh ${pic}`
-          }]);
-        
-        if (historyError) throw historyError;
-        
-        showNotification('Temuan berhasil di-update', 'success');
-        closeUpdateModal();
-        await loadData();
-      } catch (error) {
-        console.error('Error updating:', error);
-        showNotification('Gagal update temuan', 'error');
-      }
-    }
-    
-    async function loadHistory() {
-      try {
-        const { data, error } = await supabase
-          .from('history')
-          .select('*')
-          .order('timestamp', { ascending: false });
-        
-        if (error) throw error;
-        
-        const container = document.getElementById('timeline-container');
-        
-        if (!data || data.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <div style="font-size: 48px; margin-bottom: 16px;">📜</div>
-              <div style="font-size: 16px; font-weight: 600;">Belum ada riwayat</div>
-              <div style="font-size: 14px; margin-top: 8px;">Aktivitas akan muncul di sini</div>
-            </div>
-          `;
-          return;
+
+        async function insertTag(tagData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('tags')
+                    .insert([tagData])
+                    .select();
+
+                if (error) throw error;
+                
+                await addAuditLog('INSERT TAG', `Menambahkan ${tagData.tag_type} TAG`, data[0]);
+                showToast('TAG BERHASIL DISIMPAN', 'success');
+                
+                await refreshData();
+                
+                if (!document.getElementById('page-input').classList.contains('hidden')) {
+                    setTimeout(() => {
+                        showPage('dashboard');
+                    }, 500);
+                }
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error inserting tag:', error);
+                showToast('GAGAL MENYIMPAN TAG', 'error');
+                return null;
+            }
         }
-        
-        container.innerHTML = data.map(item => {
-          const time = new Date(item.timestamp).toLocaleString('id-ID');
-          return `
-            <div class="timeline-item">
-              <div class="timeline-time">${time}</div>
-              <div class="timeline-action">${item.action}</div>
-              <div class="timeline-details">${item.details}</div>
-            </div>
-          `;
-        }).join('');
-      } catch (error) {
-        console.error('Error loading history:', error);
-      }
-    }
-    
-    function showImage(src) {
-      document.getElementById('modal-image').src = src;
-      document.getElementById('image-modal').classList.add('active');
-    }
-    
-    function showNotification(message, type = 'success') {
-      const notification = document.getElementById('notification');
-      const text = document.getElementById('notification-text');
-      
-      text.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.classList.add('show');
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-    
-    // Initialize app
-    init();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8f83d72322283c',t:'MTc2NDg5NTQ2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+        async function updateTag(tagId, updateData) {
+            try {
+                const oldTag = allData.find(t => t.id === tagId);
+                
+                const { data, error } = await supabaseClient
+                    .from('tags')
+                    .update(updateData)
+                    .eq('id', tagId)
+                    .select();
+
+                if (error) throw error;
+                
+                await addAuditLog('UPDATE TAG', `Mengupdate tag ${oldTag?.tag_type}`, data[0]);
+                showToast('DATA BERHASIL DIUPDATE', 'success');
+                
+                await refreshData();
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error updating tag:', error);
+                showToast('GAGAL MENGUPDATE DATA', 'error');
+                return null;
+            }
+        }
+
+        async function insertOperator(initial) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('operators')
+                    .insert([{ initial }])
+                    .select();
+
+                if (error) throw error;
+                
+                await addAuditLog('INSERT OPERATOR', `Menambahkan operator: ${initial}`);
+                showToast('OPERATOR BERHASIL DITAMBAHKAN', 'success');
+                
+                await refreshData();
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error inserting operator:', error);
+                showToast('GAGAL MENAMBAHKAN OPERATOR', 'error');
+                return null;
+            }
+        }
+
+        async function updateOperator(oldInitial, newInitial) {
+            try {
+                const { error } = await supabaseClient
+                    .from('operators')
+                    .update({ initial: newInitial })
+                    .eq('initial', oldInitial);
+
+                if (error) throw error;
+                
+                await addAuditLog('UPDATE OPERATOR', `Mengupdate operator: ${oldInitial} -> ${newInitial}`);
+                showToast('OPERATOR BERHASIL DIUPDATE', 'success');
+                
+                await refreshData();
+                
+                return true;
+            } catch (error) {
+                console.error('Error updating operator:', error);
+                showToast('GAGAL MENGUPDATE OPERATOR', 'error');
+                return false;
+            }
+        }
+
+        async function deleteOperator(initial) {
+            try {
+                const { error } = await supabaseClient
+                    .from('operators')
+                    .delete()
+                    .eq('initial', initial);
+
+                if (error) throw error;
+                
+                await addAuditLog('DELETE OPERATOR', `Menghapus operator: ${initial}`);
+                showToast('OPERATOR DIHAPUS', 'success');
+                
+                await refreshData();
+            } catch (error) {
+                console.error('Error deleting operator:', error);
+                showToast('GAGAL MENGHAPUS OPERATOR', 'error');
+            }
+        }
+
+        async function insertEngineering(initial) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('engineerings')
+                    .insert([{ initial }])
+                    .select();
+
+                if (error) throw error;
+                
+                await addAuditLog('INSERT ENGINEERING', `Menambahkan engineering: ${initial}`);
+                showToast('ENGINEERING BERHASIL DITAMBAHKAN', 'success');
+                
+                await refreshData();
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error inserting engineering:', error);
+                showToast('GAGAL MENAMBAHKAN ENGINEERING', 'error');
+                return null;
+            }
+        }
+
+        async function updateEngineering(oldInitial, newInitial) {
+            try {
+                const { error } = await supabaseClient
+                    .from('engineerings')
+                    .update({ initial: newInitial })
+                    .eq('initial', oldInitial);
+
+                if (error) throw error;
+                
+                await addAuditLog('UPDATE ENGINEERING', `Mengupdate engineering: ${oldInitial} -> ${newInitial}`);
+                showToast('ENGINEERING BERHASIL DIUPDATE', 'success');
+                
+                await refreshData();
+                
+                return true;
+            } catch (error) {
+                console.error('Error updating engineering:', error);
+                showToast('GAGAL MENGUPDATE ENGINEERING', 'error');
+                return false;
+            }
+        }
+
+        async function deleteEngineering(initial) {
+            try {
+                const { error } = await supabaseClient
+                    .from('engineerings')
+                    .delete()
+                    .eq('initial', initial);
+
+                if (error) throw error;
+                
+                await addAuditLog('DELETE ENGINEERING', `Menghapus engineering: ${initial}`);
+                showToast('ENGINEERING DIHAPUS', 'success');
+                
+                await refreshData();
+            } catch (error) {
+                console.error('Error deleting engineering:', error);
+                showToast('GAGAL MENGHAPUS ENGINEERING', 'error');
+            }
+        }
+
+        async function insertMachine(machine) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('machines')
+                    .insert([{ machine }])
+                    .select();
+
+                if (error) throw error;
+                
+                await addAuditLog('INSERT MACHINE', `Menambahkan mesin: ${machine}`);
+                showToast('MESIN BERHASIL DITAMBAHKAN', 'success');
+                
+                await refreshData();
+                
+                return data[0];
+            } catch (error) {
+                console.error('Error inserting machine:', error);
+                showToast('GAGAL MENAMBAHKAN MESIN', 'error');
+                return null;
+            }
+        }
+
+        async function updateMachine(oldMachine, newMachine) {
+            try {
+                const { error } = await supabaseClient
+                    .from('machines')
+                    .update({ machine: newMachine })
+                    .eq('machine', oldMachine);
+
+                if (error) throw error;
+                
+                await addAuditLog('UPDATE MACHINE', `Mengupdate mesin: ${oldMachine} -> ${newMachine}`);
+                showToast('MESIN BERHASIL DIUPDATE', 'success');
+                
+                await refreshData();
+                
+                return true;
+            } catch (error) {
+                console.error('Error updating machine:', error);
+                showToast('GAGAL MENGUPDATE MESIN', 'error');
+                return false;
+            }
+        }
+
+        async function deleteMachine(machine) {
+            try {
+                const { error } = await supabaseClient
+                    .from('machines')
+                    .delete()
+                    .eq('machine', machine);
+
+                if (error) throw error;
+                
+                await addAuditLog('DELETE MACHINE', `Menghapus mesin: ${machine}`);
+                showToast('MESIN DIHAPUS', 'success');
+                
+                await refreshData();
+            } catch (error) {
+                console.error('Error deleting machine:', error);
+                showToast('GAGAL MENGHAPUS MESIN', 'error');
+            }
+        }
+
+        function setupRealtimeSubscriptions() {
+            supabaseClient
+                .channel('tags-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'tags' }, 
+                    (payload) => {
+                        console.log('Tags changed:', payload);
+                        refreshData();
+                    }
+                )
+                .subscribe();
+
+            supabaseClient
+                .channel('operators-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'operators' }, 
+                    (payload) => {
+                        console.log('Operators changed:', payload);
+                        refreshData();
+                    }
+                )
+                .subscribe();
+
+            supabaseClient
+                .channel('engineerings-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'engineerings' }, 
+                    (payload) => {
+                        console.log('Engineerings changed:', payload);
+                        refreshData();
+                    }
+                )
+                .subscribe();
+
+            supabaseClient
+                .channel('machines-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'machines' }, 
+                    (payload) => {
+                        console.log('Machines changed:', payload);
+                        refreshData();
+                    }
+                )
+                .subscribe();
+                
+            supabaseClient
+                .channel('audit-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'audit_logs' }, 
+                    (payload) => {
+                        console.log('Audit logs changed:', payload);
+                        refreshData();
+                    }
+                )
+                .subscribe();
+        }
+
+        // ============ INITIALIZATION ============
+        async function initApp() {
+            try {
+                const savedDarkMode = localStorage.getItem('darkMode');
+                if (savedDarkMode === 'true') {
+                    darkMode = true;
+                    document.documentElement.classList.add('dark');
+                } else {
+                    darkMode = false;
+                    document.documentElement.classList.remove('dark');
+                }
+                updateThemeUI();
+
+                setDefaultDates();
+                await fetchAllData();
+                setupRealtimeSubscriptions();
+                
+                updateLiveClock();
+                setInterval(updateLiveClock, 1000);
+
+                console.log('App initialized with Supabase and auto-update feature');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showToast('GAGAL INISIALISASI APLIKASI', 'error');
+            }
+        }
+
+        // ============ THEME ============
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            localStorage.setItem('darkMode', darkMode);
+            updateThemeUI();
+        }
+
+        function updateThemeUI() {
+            const icon = darkMode ? '☀️' : '🌙';
+            const text = darkMode ? 'MODE TERANG' : 'MODE GELAP';
+            
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            const headerIcon = document.getElementById('header-theme-icon');
+            
+            if (themeIcon) themeIcon.textContent = icon;
+            if (themeText) themeText.textContent = text;
+            if (headerIcon) headerIcon.textContent = icon;
+        }
+
+        // ============ KEYBOARD HANDLER ============
+        window.handleKeyPress = function(event, action) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (action === 'login') {
+                    handleLogin();
+                } else if (action === 'addOperator') {
+                    addOperator();
+                } else if (action === 'addEngineering') {
+                    addEngineering();
+                } else if (action === 'addMachine') {
+                    addMachine();
+                }
+            }
+        };
+
+        // ============ LOGIN ============
+        window.handleLogin = async function() {
+            const initial = document.getElementById('login-initial').value.trim().toUpperCase();
+            const errorEl = document.getElementById('login-error');
+            
+            if (!initial) {
+                showError(errorEl, 'MASUKKAN INISIAL ANDA');
+                return;
+            }
+            
+            const isAdmin = (initial === 'ERW');
+            const isOperator = operators.includes(initial);
+            const isEngineering = engineerings.includes(initial);
+            
+            if (!isAdmin && !isOperator && !isEngineering) {
+                showError(errorEl, 'INISIAL TIDAK TERDAFTAR');
+                return;
+            }
+            
+            currentUser = initial;
+            if (isAdmin) {
+                userRole = 'admin';
+            } else if (isOperator) {
+                userRole = 'operator';
+            } else if (isEngineering) {
+                userRole = 'engineering';
+            }
+            
+            await addAuditLog('LOGIN', `User login dengan role: ${userRole}`);
+            
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('current-user').textContent = `${initial} (${userRole.toUpperCase()})`;
+            
+            if (userRole === 'operator') {
+                document.getElementById('nav-input').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-input').classList.add('hidden');
+            }
+            
+            if (userRole === 'admin') {
+                document.getElementById('nav-management').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-management').classList.add('hidden');
+            }
+            
+            showPage('dashboard');
+            applyDashboardFilter();
+        };
+
+        window.handleGuestLogin = async function() {
+            currentUser = 'GUEST';
+            userRole = 'guest';
+            
+            await addAuditLog('LOGIN', 'Guest login');
+            
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('current-user').textContent = 'GUEST (GUEST)';
+            
+            document.getElementById('nav-input').classList.add('hidden');
+            document.getElementById('nav-management').classList.add('hidden');
+            
+            showPage('dashboard');
+            applyDashboardFilter();
+        };
+
+        function showError(errorEl, message) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+            setTimeout(() => {
+                errorEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        window.handleLogout = async function() {
+            await addAuditLog('LOGOUT', 'User logout');
+            
+            currentUser = null;
+            userRole = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('login-initial').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        };
+
+        // ============ NAVIGATION ============
+        window.showPage = function(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-gradient-to-r', 'from-emerald-500', 'to-teal-500', 'text-white');
+                btn.classList.add('bg-white/50', 'dark:bg-slate-700/50');
+            });
+            
+            const activeBtn = document.querySelector(`[data-nav="${page}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gradient-to-r', 'from-emerald-500', 'to-teal-500', 'text-white');
+                activeBtn.classList.remove('bg-white/50', 'dark:bg-slate-700/50');
+            }
+            
+            if (page === 'dashboard') {
+                updateFilterDropdowns();
+                applyDashboardFilter();
+            }
+            if (page === 'audit') renderAuditTable();
+            if (page === 'input') updateMachineDropdown();
+        };
+
+        // ============ FILTER FUNCTIONS ============
+        function updateFilterDropdowns() {
+            const machineSelect = document.getElementById('filter-machine');
+            machineSelect.innerHTML = '<option value="">SEMUA MESIN</option>' + 
+                machines.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            const operatorSelect = document.getElementById('filter-operator');
+            operatorSelect.innerHTML = '<option value="">SEMUA OPERATOR</option>' + 
+                operators.map(o => `<option value="${o}">${o}</option>`).join('');
+            
+            const engineeringSelect = document.getElementById('filter-engineering');
+            engineeringSelect.innerHTML = '<option value="">SEMUA ENGINEERING</option>' + 
+                engineerings.map(e => `<option value="${e}">${e}</option>`).join('');
+        }
+
+        window.applyDashboardFilter = function() {
+            currentFilter.dateFrom = document.getElementById('filter-date-from').value;
+            currentFilter.dateTo = document.getElementById('filter-date-to').value;
+            currentFilter.machine = document.getElementById('filter-machine').value;
+            currentFilter.operator = document.getElementById('filter-operator').value;
+            currentFilter.engineering = document.getElementById('filter-engineering').value;
+            
+            filteredData = allData.filter(tag => {
+                // Filter berdasarkan rentang tanggal
+                if (currentFilter.dateFrom && currentFilter.dateTo) {
+                    if (tag.date < currentFilter.dateFrom || tag.date > currentFilter.dateTo) return false;
+                } else if (currentFilter.dateFrom) {
+                    if (tag.date < currentFilter.dateFrom) return false;
+                } else if (currentFilter.dateTo) {
+                    if (tag.date > currentFilter.dateTo) return false;
+                }
+                
+                if (currentFilter.machine && tag.machine !== currentFilter.machine) return false;
+                if (currentFilter.operator && tag.initial !== currentFilter.operator) return false;
+                if (currentFilter.engineering) {
+                    const engineeringMatch = tag.wr_number && tag.wr_number.includes(currentFilter.engineering);
+                    if (!engineeringMatch) return false;
+                }
+                return true;
+            });
+            
+            updateDashboard();
+            
+            // Tampilkan info rentang tanggal
+            if (currentFilter.dateFrom || currentFilter.dateTo) {
+                const from = currentFilter.dateFrom || 'awal';
+                const to = currentFilter.dateTo || 'akhir';
+                showToast(`Menampilkan data dari ${from} s/d ${to}`, 'success');
+            }
+        };
+
+        window.resetDashboardFilter = function() {
+            document.getElementById('filter-date-from').value = '';
+            document.getElementById('filter-date-to').value = '';
+            document.getElementById('filter-machine').value = '';
+            document.getElementById('filter-operator').value = '';
+            document.getElementById('filter-engineering').value = '';
+            
+            currentFilter = {
+                dateFrom: '',
+                dateTo: '',
+                machine: '',
+                operator: '',
+                engineering: ''
+            };
+            
+            filteredData = [...allData];
+            updateDashboard();
+            showToast('Filter direset ke semua data', 'success');
+        };
+
+        // ============ DASHBOARD ============
+        function updateDashboard() {
+            const tags = filteredData.length > 0 ? filteredData : allData;
+            
+            // Hitung metrics
+            const totalTags = tags.length;
+            const redTags = tags.filter(t => t.tag_type === 'RED').length;
+            const whiteTags = tags.filter(t => t.tag_type === 'WHITE').length;
+            
+            const open = tags.filter(t => t.status === 'OPEN').length;
+            const progress = tags.filter(t => t.status === 'ON PROGRESS').length;
+            const closed = tags.filter(t => t.status === 'CLOSED').length;
+            
+            // Tag On = OPEN + PROGRESS
+            const tagOn = open + progress;
+            
+            // Tag Off = WHITE + CLOSED RED
+            const closedRedTags = tags.filter(t => t.tag_type === 'RED' && t.status === 'CLOSED').length;
+            const tagOff = whiteTags + closedRedTags;
+            
+            // Persentase berdasarkan Tag On
+            const openPercent = tagOn > 0 ? Math.round((open / tagOn) * 100) : 0;
+            const progressPercent = tagOn > 0 ? Math.round((progress / tagOn) * 100) : 0;
+            const closedPercent = tagOn > 0 ? Math.round((closed / tagOn) * 100) : 0;
+            
+            // Update Score Cards
+            document.getElementById('stat-total-tags').textContent = totalTags;
+            document.getElementById('stat-tag-on').textContent = tagOn;
+            document.getElementById('stat-tag-off').textContent = tagOff;
+            document.getElementById('stat-open').textContent = open;
+            document.getElementById('stat-progress').textContent = progress;
+            document.getElementById('stat-closed').textContent = closed;
+            document.getElementById('stat-open-percent').textContent = openPercent + '%';
+            document.getElementById('stat-progress-percent').textContent = progressPercent + '%';
+            document.getElementById('stat-closed-percent').textContent = closedPercent + '%';
+            
+            // Update Red/White bars
+            const maxCount = Math.max(redTags, whiteTags, 1);
+            document.getElementById('bar-red').style.height = `${(redTags / maxCount) * 150}px`;
+            document.getElementById('bar-white').style.height = `${(whiteTags / maxCount) * 150}px`;
+            document.getElementById('count-red').textContent = redTags;
+            document.getElementById('count-white').textContent = whiteTags;
+            
+            document.getElementById('red-tag-count').textContent = redTags + ' TAG';
+            document.getElementById('white-tag-count').textContent = whiteTags + ' TAG';
+            
+            // Render charts dan tables
+            renderMachineChart(tags);
+            renderOperatorChart(tags);
+            renderEngineeringChart(tags); // NEW!
+            renderRedTagTable(tags.filter(t => t.tag_type === 'RED'));
+            renderWhiteTagTable(tags.filter(t => t.tag_type === 'WHITE'));
+            renderMachineDetailBars(tags);
+            renderOperatorDetailBars(tags);
+            renderEngineeringDetailBars(tags); // NEW!
+        }
+
+        function renderMachineChart(tags) {
+            const container = document.getElementById('chart-machine');
+            const machineStats = {};
+            
+            machines.forEach(m => {
+                machineStats[m] = { total: 0 };
+            });
+            
+            tags.forEach(t => {
+                if (machineStats[t.machine]) {
+                    machineStats[t.machine].total++;
+                }
+            });
+            
+            const sortedMachines = Object.entries(machineStats)
+                .sort((a, b) => b[1].total - a[1].total);
+            
+            const maxTotal = Math.max(...Object.values(machineStats).map(s => s.total), 1);
+            
+            container.innerHTML = sortedMachines.map(([machine, stats]) => {
+                const width = (stats.total / maxTotal) * 100;
+                
+                return `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 chart-item">
+                        <span class="w-20 sm:w-24 text-xs font-semibold uppercase break-word bar-label" title="${machine}">${machine}</span>
+                        <div class="flex-1 w-full sm:w-auto h-6 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-end px-2 transition-all duration-500" style="width: ${width}%">
+                                <span class="text-xs font-bold text-white whitespace-nowrap">${stats.total}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMachineDetailBars(tags) {
+            const container = document.getElementById('machine-detail-bars');
+            const machineStats = {};
+            
+            machines.forEach(m => {
+                machineStats[m] = { 
+                    red: 0, 
+                    white: 0,
+                    open: 0,
+                    closed: 0
+                };
+            });
+            
+            tags.forEach(t => {
+                if (machineStats[t.machine]) {
+                    if (t.tag_type === 'RED') machineStats[t.machine].red++;
+                    else machineStats[t.machine].white++;
+                    
+                    if (t.status === 'OPEN') machineStats[t.machine].open++;
+                    else if (t.status === 'CLOSED') machineStats[t.machine].closed++;
+                }
+            });
+            
+            const sortedMachines = Object.entries(machineStats)
+                .sort((a, b) => (b[1].red + b[1].white) - (a[1].red + a[1].white));
+            
+            const maxRed = Math.max(...Object.values(machineStats).map(s => s.red), 1);
+            const maxWhite = Math.max(...Object.values(machineStats).map(s => s.white), 1);
+            const maxOpen = Math.max(...Object.values(machineStats).map(s => s.open), 1);
+            const maxClosed = Math.max(...Object.values(machineStats).map(s => s.closed), 1);
+            
+            container.innerHTML = sortedMachines.map(([machine, stats]) => {
+                const redWidth = (stats.red / maxRed) * 100;
+                const whiteWidth = (stats.white / maxWhite) * 100;
+                const openWidth = (stats.open / maxOpen) * 100;
+                const closedWidth = (stats.closed / maxClosed) * 100;
+                
+                return `
+                    <div class="space-y-2 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-xs font-bold uppercase break-word">${machine}</span>
+                            <span class="text-xs text-slate-500 whitespace-nowrap">TOTAL: ${stats.red + stats.white}</span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-red-600 font-semibold whitespace-nowrap">RED: ${stats.red}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-red rounded-full flex items-center justify-end px-1" style="width: ${redWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.red}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-slate-600 font-semibold whitespace-nowrap">WHITE: ${stats.white}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-white rounded-full flex items-center justify-end px-1" style="width: ${whiteWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.white}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-red-500 font-semibold whitespace-nowrap">OPEN: ${stats.open}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-open rounded-full flex items-center justify-end px-1" style="width: ${openWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.open}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-emerald-600 font-semibold whitespace-nowrap">CLOSED: ${stats.closed}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-closed rounded-full flex items-center justify-end px-1" style="width: ${closedWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.closed}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderOperatorChart(tags) {
+            const container = document.getElementById('chart-operator');
+            const operatorStats = {};
+            
+            operators.forEach(o => {
+                operatorStats[o] = { total: 0 };
+            });
+            
+            tags.forEach(t => {
+                if (operatorStats[t.initial]) {
+                    operatorStats[t.initial].total++;
+                }
+            });
+            
+            const sortedOperators = Object.entries(operatorStats)
+                .sort((a, b) => b[1].total - a[1].total);
+            
+            const maxTotal = Math.max(...Object.values(operatorStats).map(s => s.total), 1);
+            
+            container.innerHTML = sortedOperators.map(([operator, stats]) => {
+                const width = (stats.total / maxTotal) * 100;
+                
+                return `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 chart-item">
+                        <span class="w-16 text-xs font-semibold uppercase break-word bar-label">${operator}</span>
+                        <div class="flex-1 w-full sm:w-auto h-6 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-end px-2 transition-all duration-500" style="width: ${width}%">
+                                <span class="text-xs font-bold text-white whitespace-nowrap">${stats.total}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderOperatorDetailBars(tags) {
+            const container = document.getElementById('operator-detail-bars');
+            const operatorStats = {};
+            
+            operators.forEach(o => {
+                operatorStats[o] = { red: 0, white: 0 };
+            });
+            
+            tags.forEach(t => {
+                if (operatorStats[t.initial]) {
+                    if (t.tag_type === 'RED') operatorStats[t.initial].red++;
+                    else operatorStats[t.initial].white++;
+                }
+            });
+            
+            const sortedOperators = Object.entries(operatorStats)
+                .sort((a, b) => (b[1].red + b[1].white) - (a[1].red + a[1].white));
+            
+            const maxRed = Math.max(...Object.values(operatorStats).map(s => s.red), 1);
+            const maxWhite = Math.max(...Object.values(operatorStats).map(s => s.white), 1);
+            
+            container.innerHTML = sortedOperators.map(([operator, stats]) => {
+                const redWidth = (stats.red / maxRed) * 100;
+                const whiteWidth = (stats.white / maxWhite) * 100;
+                
+                return `
+                    <div class="space-y-2 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-xs font-bold uppercase break-word">${operator}</span>
+                            <span class="text-xs text-slate-500 whitespace-nowrap">TOTAL: ${stats.red + stats.white}</span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-red-600 font-semibold whitespace-nowrap">RED: ${stats.red}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-red rounded-full flex items-center justify-end px-1" style="width: ${redWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.red}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-slate-600 font-semibold whitespace-nowrap">WHITE: ${stats.white}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-white rounded-full flex items-center justify-end px-1" style="width: ${whiteWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.white}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // NEW FUNCTION: Render Engineering Chart (Closed Tags)
+        function renderEngineeringChart(tags) {
+            const container = document.getElementById('chart-engineering');
+            if (!container) return;
+            
+            const engineeringStats = {};
+            
+            engineerings.forEach(e => {
+                engineeringStats[e] = { closed: 0 };
+            });
+            
+            // Hitung closed tags yang punya WR number (di-handle oleh engineering)
+            tags.forEach(t => {
+                if (t.status === 'CLOSED' && t.wr_number) {
+                    // Cari engineering dari wr_number (asumsi format WR mengandung inisial engineering)
+                    const matchedEng = engineerings.find(e => t.wr_number.includes(e));
+                    if (matchedEng) {
+                        engineeringStats[matchedEng].closed++;
+                    }
+                }
+            });
+            
+            const sortedEngineerings = Object.entries(engineeringStats)
+                .sort((a, b) => b[1].closed - a[1].closed);
+            
+            const maxClosed = Math.max(...Object.values(engineeringStats).map(s => s.closed), 1);
+            
+            container.innerHTML = sortedEngineerings.map(([eng, stats]) => {
+                const width = (stats.closed / maxClosed) * 100;
+                
+                return `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 chart-item">
+                        <span class="w-16 text-xs font-semibold uppercase break-word bar-label">${eng}</span>
+                        <div class="flex-1 w-full sm:w-auto h-6 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-end px-2 transition-all duration-500" style="width: ${width}%">
+                                <span class="text-xs font-bold text-white whitespace-nowrap">${stats.closed}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // NEW FUNCTION: Render Engineering Detail Bars
+        function renderEngineeringDetailBars(tags) {
+            const container = document.getElementById('engineering-detail-bars');
+            if (!container) return;
+            
+            const engineeringStats = {};
+            
+            engineerings.forEach(e => {
+                engineeringStats[e] = { 
+                    closed: 0,
+                    red_closed: 0,
+                    white: 0
+                };
+            });
+            
+            tags.forEach(t => {
+                // Hitung white tags (langsung closed tanpa engineering)
+                if (t.tag_type === 'WHITE') {
+                    const matchedEng = engineerings.find(e => t.wr_number && t.wr_number.includes(e));
+                    if (matchedEng) {
+                        engineeringStats[matchedEng].white++;
+                    }
+                }
+                
+                // Hitung closed red tags (butuh engineering)
+                if (t.tag_type === 'RED' && t.status === 'CLOSED' && t.wr_number) {
+                    const matchedEng = engineerings.find(e => t.wr_number.includes(e));
+                    if (matchedEng) {
+                        engineeringStats[matchedEng].closed++;
+                        engineeringStats[matchedEng].red_closed++;
+                    }
+                }
+            });
+            
+            const sortedEngineerings = Object.entries(engineeringStats)
+                .sort((a, b) => (b[1].closed + b[1].white) - (a[1].closed + a[1].white));
+            
+            const maxClosed = Math.max(...Object.values(engineeringStats).map(s => s.closed), 1);
+            const maxWhite = Math.max(...Object.values(engineeringStats).map(s => s.white), 1);
+            
+            container.innerHTML = sortedEngineerings.map(([eng, stats]) => {
+                const closedWidth = (stats.closed / maxClosed) * 100;
+                const whiteWidth = (stats.white / maxWhite) * 100;
+                
+                return `
+                    <div class="space-y-2 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-xs font-bold uppercase break-word">${eng}</span>
+                            <span class="text-xs text-slate-500 whitespace-nowrap">TOTAL: ${stats.closed + stats.white}</span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-purple-600 font-semibold whitespace-nowrap">CLOSED RED: ${stats.red_closed}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-engineering rounded-full flex items-center justify-end px-1" style="width: ${closedWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.closed}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                            <span class="w-16 text-slate-600 font-semibold whitespace-nowrap">WHITE: ${stats.white}</span>
+                            <div class="flex-1 w-full sm:w-auto h-4 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bar-white rounded-full flex items-center justify-end px-1" style="width: ${whiteWidth}%">
+                                    <span class="text-[10px] font-bold text-white whitespace-nowrap">${stats.white}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRedTagTable(redTags) {
+            const tbody = document.getElementById('red-tag-table');
+            
+            if (redTags.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-2 sm:px-4 py-8 text-center text-slate-500 uppercase text-xs">TIDAK ADA RED TAG</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            redTags.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            tbody.innerHTML = redTags.map(tag => {
+                const statusColor = tag.status === 'OPEN' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                                   tag.status === 'ON PROGRESS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' :
+                                   'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300';
+                
+                let actionButton = '';
+                
+                if (tag.status === 'CLOSED') {
+                    actionButton = `<span class="text-xs text-emerald-600 font-semibold">✓ CLOSED</span>`;
+                } else if (!tag.wr_number) {
+                    if (userRole === 'operator' || userRole === 'admin') {
+                        actionButton = `<button onclick="openUpdateModal('${tag.id}')" class="px-2 sm:px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] sm:text-xs font-semibold uppercase hover:bg-blue-600 transition whitespace-nowrap">INPUT WR</button>`;
+                    } else {
+                        actionButton = `<span class="text-xs text-slate-500">-</span>`;
+                    }
+                } else {
+                    if (userRole === 'engineering' || userRole === 'admin') {
+                        actionButton = `<button onclick="openUpdateModal('${tag.id}')" class="px-2 sm:px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] sm:text-xs font-semibold uppercase hover:bg-blue-600 transition whitespace-nowrap">UPDATE</button>`;
+                    } else {
+                        actionButton = `<span class="text-xs text-slate-500">-</span>`;
+                    }
+                }
+                
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${formatDate(tag.date) || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs font-semibold table-cell-wrap">${tag.machine || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <span class="px-1 sm:px-2 py-1 rounded-full text-[8px] sm:text-xs font-semibold uppercase inline-block ${getRiskColor(tag.risk)}">${tag.risk || '-'}</span>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <div class="table-cell-wrap break-word text-container" title="${tag.abnormality || ''}">${tag.abnormality || '-'}</div>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <div class="table-cell-wrap break-word text-container" title="${tag.progress_note || ''}">${tag.progress_note || '-'}</div>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs font-mono table-cell-wrap">${tag.wr_number || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <span class="px-1 sm:px-2 py-1 rounded-full text-[8px] sm:text-xs font-semibold uppercase inline-block ${statusColor}">${tag.status || '-'}</span>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 text-center">
+                            ${actionButton}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderWhiteTagTable(whiteTags) {
+            const tbody = document.getElementById('white-tag-table');
+            
+            if (whiteTags.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-2 sm:px-4 py-8 text-center text-slate-500 uppercase text-xs">TIDAK ADA WHITE TAG</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            whiteTags.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            tbody.innerHTML = whiteTags.map(tag => {
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${formatDate(tag.date) || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs font-semibold table-cell-wrap">${tag.initial || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${tag.machine || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <div class="table-cell-wrap break-word text-container" title="${tag.abnormality || ''}">${tag.abnormality || '-'}</div>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <div class="table-cell-wrap break-word text-container" title="${tag.action || ''}">${tag.action || '-'}</div>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <span class="px-1 sm:px-2 py-1 rounded-full text-[8px] sm:text-xs font-semibold uppercase inline-block ${getRiskColor(tag.risk)}">${tag.risk || '-'}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '-';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('id-ID', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function getRiskColor(risk) {
+            switch (risk) {
+                case 'SAFETY': return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
+                case 'QUALITY': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
+                case 'PRODUCTIVITY': return 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300';
+                case '5R': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300';
+                default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+            }
+        }
+
+        // ============ UPDATE MODAL ============
+        window.openUpdateModal = function(tagId) {
+            if (!tagId) {
+                showToast('ID TAG TIDAK DITEMUKAN', 'error');
+                return;
+            }
+            
+            const tag = allData.find(t => t.id === tagId);
+            if (!tag) {
+                showToast('TAG TIDAK DITEMUKAN', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('update-modal');
+            const content = document.getElementById('modal-content');
+            
+            if (!tag.wr_number) {
+                if (userRole !== 'operator' && userRole !== 'admin') {
+                    showToast('ANDA TIDAK MEMILIKI AKSES', 'error');
+                    return;
+                }
+                
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <p class="text-sm uppercase text-slate-500 break-word">MASUKKAN NOMOR WR UNTUK TAG INI</p>
+                        <input type="text" id="modal-wr" placeholder="NOMOR WR"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:border-emerald-500 focus:outline-none transition uppercase"
+                            autocomplete="off">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <button onclick="closeModal()" class="w-full sm:flex-1 py-3 bg-slate-200 dark:bg-slate-600 rounded-xl font-semibold uppercase hover:bg-slate-300 dark:hover:bg-slate-500 transition">BATAL</button>
+                            <button onclick="submitWR('${tag.id}')" class="w-full sm:flex-1 py-3 bg-emerald-500 text-white rounded-xl font-semibold uppercase hover:bg-emerald-600 transition">SIMPAN</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                if (userRole !== 'engineering' && userRole !== 'admin') {
+                    showToast('ANDA TIDAK MEMILIKI AKSES', 'error');
+                    return;
+                }
+                
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <p class="text-sm uppercase text-slate-500 break-word">NO WR: <span class="font-bold text-slate-900 dark:text-white">${tag.wr_number}</span></p>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold uppercase mb-2">STATUS</label>
+                            <select id="modal-status"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:border-emerald-500 focus:outline-none transition uppercase">
+                                <option value="ON PROGRESS" ${tag.status === 'ON PROGRESS' ? 'selected' : ''}>ON PROGRESS</option>
+                                <option value="CLOSED" ${tag.status === 'CLOSED' ? 'selected' : ''}>CLOSED</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold uppercase mb-2">ACTION</label>
+                            <textarea id="modal-note" rows="3" placeholder="TINDAKAN YANG DILAKUKAN..."
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:border-emerald-500 focus:outline-none transition uppercase break-word"></textarea>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <button onclick="closeModal()" class="w-full sm:flex-1 py-3 bg-slate-200 dark:bg-slate-600 rounded-xl font-semibold uppercase hover:bg-slate-300 dark:hover:bg-slate-500 transition">BATAL</button>
+                            <button onclick="submitStatus('${tag.id}')" class="w-full sm:flex-1 py-3 bg-emerald-500 text-white rounded-xl font-semibold uppercase hover:bg-emerald-600 transition">UPDATE</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('update-modal').classList.add('hidden');
+        };
+
+        window.submitWR = async function(tagId) {
+            const wr = document.getElementById('modal-wr').value.trim().toUpperCase();
+            if (!wr) {
+                showToast('NOMOR WR HARUS DIISI', 'error');
+                return;
+            }
+            
+            const updated = await updateTag(tagId, {
+                wr_number: wr,
+                updated_at: new Date().toISOString()
+            });
+            
+            if (updated) {
+                closeModal();
+                showToast('NOMOR WR BERHASIL DISIMPAN', 'success');
+            }
+        };
+
+        window.submitStatus = async function(tagId) {
+            const status = document.getElementById('modal-status').value;
+            const note = document.getElementById('modal-note').value.trim().toUpperCase();
+            
+            const updated = await updateTag(tagId, {
+                status: status,
+                progress_note: note,
+                updated_at: new Date().toISOString()
+            });
+            
+            if (updated) {
+                closeModal();
+                showToast('STATUS BERHASIL DIUPDATE', 'success');
+            }
+        };
+
+        // ============ EDIT MODAL ============
+        window.openEditModal = function(type, oldValue) {
+            const modal = document.getElementById('edit-modal');
+            const title = document.getElementById('edit-modal-title');
+            const content = document.getElementById('edit-modal-content');
+            
+            title.textContent = `EDIT ${type.toUpperCase()}`;
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-sm uppercase text-slate-500 break-word">EDIT: ${oldValue}</p>
+                    <input type="text" id="edit-value" value="${oldValue}" placeholder="MASUKKAN NILAI BARU"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:border-yellow-500 focus:outline-none transition uppercase"
+                        autocomplete="off">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="closeEditModal()" class="w-full sm:flex-1 py-3 bg-slate-200 dark:bg-slate-600 rounded-xl font-semibold uppercase hover:bg-slate-300 dark:hover:bg-slate-500 transition">BATAL</button>
+                        <button onclick="submitEdit('${type}', '${oldValue}')" class="w-full sm:flex-1 py-3 bg-yellow-500 text-white rounded-xl font-semibold uppercase hover:bg-yellow-600 transition">UPDATE</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        };
+
+        window.submitEdit = async function(type, oldValue) {
+            const newValue = document.getElementById('edit-value').value.trim().toUpperCase();
+            
+            if (!newValue) {
+                showToast('NILAI BARU HARUS DIISI', 'error');
+                return;
+            }
+            
+            if (newValue === oldValue) {
+                showToast('TIDAK ADA PERUBAHAN', 'error');
+                return;
+            }
+            
+            let success = false;
+            
+            if (type === 'operator') {
+                if (operators.includes(newValue)) {
+                    showToast('INISIAL SUDAH TERDAFTAR', 'error');
+                    return;
+                }
+                success = await updateOperator(oldValue, newValue);
+            } else if (type === 'engineering') {
+                if (engineerings.includes(newValue)) {
+                    showToast('INISIAL SUDAH TERDAFTAR', 'error');
+                    return;
+                }
+                success = await updateEngineering(oldValue, newValue);
+            } else if (type === 'machine') {
+                if (machines.includes(newValue)) {
+                    showToast('NAMA MESIN SUDAH TERDAFTAR', 'error');
+                    return;
+                }
+                success = await updateMachine(oldValue, newValue);
+            }
+            
+            if (success) {
+                closeEditModal();
+                showToast('DATA BERHASIL DIUPDATE', 'success');
+            }
+        };
+
+        // ============ INPUT TAG ============
+        window.handleTagTypeChange = function() {
+            const tagType = document.getElementById('input-tag-type').value;
+            const actionField = document.getElementById('white-tag-action');
+            const actionInput = document.getElementById('input-action');
+            
+            if (tagType === 'WHITE') {
+                actionField.classList.remove('hidden');
+                actionInput.required = true;
+            } else {
+                actionField.classList.add('hidden');
+                actionInput.required = false;
+            }
+        };
+
+        function updateMachineDropdown() {
+            const select = document.getElementById('input-machine');
+            if (!select) return;
+            
+            let options = '<option value="">PILIH</option>';
+            
+            if (machines && machines.length > 0) {
+                machines.forEach(m => {
+                    options += `<option value="${m}">${m}</option>`;
+                });
+            } else {
+                options += '<option value="" disabled>BELUM ADA MESIN</option>';
+            }
+            
+            select.innerHTML = options;
+        }
+
+        document.getElementById('tag-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showToast('SILAKAN LOGIN TERLEBIH DAHULU', 'error');
+                return;
+            }
+            
+            const tagType = document.getElementById('input-tag-type').value;
+            const status = tagType === 'WHITE' ? 'CLOSED' : 'OPEN';
+            
+            const newTag = {
+                date: document.getElementById('input-date').value,
+                initial: currentUser,
+                tag_type: tagType,
+                machine: document.getElementById('input-machine').value,
+                abnormality: document.getElementById('input-abnormality').value.toUpperCase(),
+                impact: document.getElementById('input-impact').value.toUpperCase(),
+                risk: document.getElementById('input-risk').value,
+                action: document.getElementById('input-action')?.value?.toUpperCase() || '',
+                status: status,
+                wr_number: '',
+                progress_note: '',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">MENYIMPAN...</span>';
+            
+            const inserted = await insertTag(newTag);
+            
+            btn.disabled = false;
+            btn.innerHTML = '<span>SUBMIT TAG</span>';
+            
+            if (inserted) {
+                document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('input-tag-type').value = '';
+                document.getElementById('input-machine').value = '';
+                document.getElementById('input-abnormality').value = '';
+                document.getElementById('input-impact').value = '';
+                document.getElementById('input-risk').value = '';
+                document.getElementById('input-action').value = '';
+                document.getElementById('white-tag-action').classList.add('hidden');
+            }
+        });
+
+        // ============ MANAGEMENT ============
+        function renderManagementLists() {
+            const operatorList = document.getElementById('operator-list');
+            operatorList.innerHTML = operators.length === 0 
+                ? '<p class="text-slate-500 text-sm uppercase text-center py-4">BELUM ADA OPERATOR</p>'
+                : operators.map(o => `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <span class="font-semibold uppercase text-sm break-word">${o}</span>
+                        <div class="flex gap-1">
+                            <button onclick="openEditModal('operator', '${o}')" class="w-6 h-6 bg-yellow-500 text-white rounded flex items-center justify-center hover:bg-yellow-600 transition">✏️</button>
+                            <button onclick="removeOperator('${o}')" class="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600 transition">×</button>
+                        </div>
+                    </div>
+                `).join('');
+            
+            const engineeringList = document.getElementById('engineering-list');
+            engineeringList.innerHTML = engineerings.length === 0
+                ? '<p class="text-slate-500 text-sm uppercase text-center py-4">BELUM ADA ENGINEERING</p>'
+                : engineerings.map(e => `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <span class="font-semibold uppercase text-sm break-word">${e}</span>
+                        <div class="flex gap-1">
+                            <button onclick="openEditModal('engineering', '${e}')" class="w-6 h-6 bg-yellow-500 text-white rounded flex items-center justify-center hover:bg-yellow-600 transition">✏️</button>
+                            <button onclick="removeEngineering('${e}')" class="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600 transition">×</button>
+                        </div>
+                    </div>
+                `).join('');
+            
+            const machineList = document.getElementById('machine-list');
+            machineList.innerHTML = machines.length === 0
+                ? '<p class="text-slate-500 text-sm uppercase text-center py-4">BELUM ADA MESIN</p>'
+                : machines.map(m => `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <span class="font-semibold uppercase text-sm break-word">${m}</span>
+                        <div class="flex gap-1">
+                            <button onclick="openEditModal('machine', '${m}')" class="w-6 h-6 bg-yellow-500 text-white rounded flex items-center justify-center hover:bg-yellow-600 transition">✏️</button>
+                            <button onclick="removeMachine('${m}')" class="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600 transition">×</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        window.addOperator = async function() {
+            const input = document.getElementById('new-operator');
+            const value = input.value.trim().toUpperCase();
+            
+            if (!value) {
+                showToast('MASUKKAN INISIAL OPERATOR', 'error');
+                return;
+            }
+            
+            if (operators.includes(value)) {
+                showToast('INISIAL SUDAH TERDAFTAR', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const inserted = await insertOperator(value);
+            
+            if (inserted) {
+                input.value = '';
+            }
+        };
+
+        window.removeOperator = async function(name) {
+            if (confirm(`HAPUS OPERATOR ${name}?`)) {
+                await deleteOperator(name);
+            }
+        };
+
+        window.addEngineering = async function() {
+            const input = document.getElementById('new-engineering');
+            const value = input.value.trim().toUpperCase();
+            
+            if (!value) {
+                showToast('MASUKKAN INISIAL ENGINEERING', 'error');
+                return;
+            }
+            
+            if (engineerings.includes(value)) {
+                showToast('INISIAL SUDAH TERDAFTAR', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const inserted = await insertEngineering(value);
+            
+            if (inserted) {
+                input.value = '';
+            }
+        };
+
+        window.removeEngineering = async function(name) {
+            if (confirm(`HAPUS ENGINEERING ${name}?`)) {
+                await deleteEngineering(name);
+            }
+        };
+
+        window.addMachine = async function() {
+            const input = document.getElementById('new-machine');
+            const value = input.value.trim().toUpperCase();
+            
+            if (!value) {
+                showToast('MASUKKAN NAMA MESIN', 'error');
+                return;
+            }
+            
+            if (machines.includes(value)) {
+                showToast('NAMA MESIN SUDAH TERDAFTAR', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const inserted = await insertMachine(value);
+            
+            if (inserted) {
+                input.value = '';
+            }
+        };
+
+        window.removeMachine = async function(name) {
+            if (confirm(`HAPUS MESIN ${name}?`)) {
+                await deleteMachine(name);
+            }
+        };
+
+        // ============ AUDIT TRAIL ============
+        function renderAuditTable() {
+            const tbody = document.getElementById('audit-table');
+            const dataToShow = filteredAuditData.length > 0 ? filteredAuditData : auditLogs;
+            
+            const sortedData = [...dataToShow].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            if (sortedData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-2 sm:px-4 py-8 text-center text-slate-500 uppercase text-xs">TIDAK ADA DATA AUDIT</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = sortedData.map(log => {
+                const activityColor = log.activity?.includes('INSERT') ? 'bg-green-100 text-green-700' :
+                                     log.activity?.includes('UPDATE') ? 'bg-blue-100 text-blue-700' :
+                                     log.activity?.includes('DELETE') ? 'bg-red-100 text-red-700' :
+                                     'bg-slate-100 text-slate-700';
+                
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${formatDateTime(log.created_at) || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs font-semibold table-cell-wrap">${log.user || '-'} (${log.role || '-'})</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <span class="px-1 sm:px-2 py-1 rounded-full text-[8px] sm:text-xs font-semibold uppercase inline-block ${activityColor}">${log.activity || '-'}</span>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            <div class="table-cell-wrap break-word text-container" title="${log.detail || ''}">${log.detail || '-'}</div>
+                        </td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${log.tag_date ? formatDate(log.tag_date) : '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${log.tag_type || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${log.tag_machine || '-'}</td>
+                        <td class="px-2 sm:px-4 py-2 sm:py-3 uppercase text-[10px] sm:text-xs table-cell-wrap">${log.tag_status || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.filterAudit = function() {
+            const from = document.getElementById('audit-from').value;
+            const to = document.getElementById('audit-to').value;
+            
+            if (!from || !to) {
+                showToast('PILIH RENTANG TANGGAL', 'error');
+                return;
+            }
+            
+            filteredAuditData = auditLogs.filter(log => {
+                const logDate = log.created_at.split('T')[0];
+                return logDate >= from && logDate <= to;
+            });
+            
+            renderAuditTable();
+            showToast(`MENAMPILKAN ${filteredAuditData.length} DATA`, 'success');
+        };
+
+        window.resetFilter = function() {
+            filteredAuditData = [];
+            setDefaultDates();
+            renderAuditTable();
+        };
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            
+            document.getElementById('input-date').value = today;
+            document.getElementById('audit-from').value = lastWeek;
+            document.getElementById('audit-to').value = today;
+        }
+
+        // ============ EXPORT FUNCTIONS ============
+        window.exportExcel = function() {
+            const dataToExport = filteredAuditData.length > 0 ? filteredAuditData : auditLogs;
+            
+            if (dataToExport.length === 0) {
+                showToast('TIDAK ADA DATA UNTUK DIEKSPOR', 'error');
+                return;
+            }
+            
+            let csv = 'WAKTU,USER,ROLE,AKTIVITAS,DETAIL,TANGGAL TAG,JENIS TAG,MESIN,STATUS\n';
+            
+            dataToExport.forEach(log => {
+                csv += `"${formatDateTime(log.created_at) || ''}","${log.user || ''}","${log.role || ''}","${log.activity || ''}","${log.detail || ''}","${log.tag_date ? formatDate(log.tag_date) : ''}","${log.tag_type || ''}","${log.tag_machine || ''}","${log.tag_status || ''}"\n`;
+            });
+            
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `audit_trail_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            
+            showToast('FILE EXCEL BERHASIL DIUNDUH', 'success');
+        };
+
+        window.exportPDF = function() {
+            const dataToExport = filteredAuditData.length > 0 ? filteredAuditData : auditLogs;
+            
+            if (dataToExport.length === 0) {
+                showToast('TIDAK ADA DATA UNTUK DIEKSPOR', 'error');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>AUDIT TRAIL REPORT</title>
+                    <style>
+                        body { font-family: 'Space Grotesk', Arial, sans-serif; padding: 20px; }
+                        h1 { text-align: center; text-transform: uppercase; color: #059669; }
+                        h2 { text-align: center; text-transform: uppercase; font-size: 14px; color: #666; margin-top: -10px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10px; }
+                        th { background: #059669; color: white; padding: 8px; text-align: left; text-transform: uppercase; }
+                        td { border: 1px solid #ddd; padding: 6px; text-transform: uppercase; word-break: break-word; }
+                        tr:nth-child(even) { background: #f9f9f9; }
+                        .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #666; }
+                        .summary { margin: 20px 0; padding: 10px; background: #f3f4f6; border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>AUDIT TRAIL REPORT</h1>
+                    <h2>${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</h2>
+                    
+                    <div class="summary">
+                        <p><strong>PERIODE:</strong> ${document.getElementById('audit-from').value} s/d ${document.getElementById('audit-to').value}</p>
+                        <p><strong>TOTAL DATA:</strong> ${dataToExport.length}</p>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>WAKTU</th>
+                                <th>USER</th>
+                                <th>ROLE</th>
+                                <th>AKTIVITAS</th>
+                                <th>DETAIL</th>
+                                <th>TGL TAG</th>
+                                <th>JENIS</th>
+                                <th>MESIN</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${dataToExport.map(log => `
+                                <tr>
+                                    <td>${formatDateTime(log.created_at) || '-'}</td>
+                                    <td>${log.user || '-'}</td>
+                                    <td>${log.role || '-'}</td>
+                                    <td>${log.activity || '-'}</td>
+                                    <td>${log.detail || '-'}</td>
+                                    <td>${log.tag_date ? formatDate(log.tag_date) : '-'}</td>
+                                    <td>${log.tag_type || '-'}</td>
+                                    <td>${log.tag_machine || '-'}</td>
+                                    <td>${log.tag_status || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">
+                        <p>DOKUMEN INI DIGENERATE OLEH SISTEM TAG MONITORING</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+            
+            showToast('SILAKAN SIMPAN SEBAGAI PDF', 'success');
+        };
+
+        // ============ TOAST ============
+        function showToast(message, type = 'success') {
+            const existingToasts = document.querySelectorAll('.toast-message');
+            existingToasts.forEach(t => t.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-message fixed bottom-4 right-4 px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg z-50 font-semibold uppercase text-xs sm:text-sm transition-all duration-300 transform translate-y-0 ${
+                type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============ INIT ============
+        initApp();
+    </script>
+</body>
 </html>
